@@ -23,25 +23,36 @@
             display: flex;
             justify-content: center;
             min-height: 100vh;
-            overflow-x: hidden; /* Prevent horizontal scroll */
+            overflow-x: hidden;
         }
 
         .app-container {
             width: 100%;
-            max-width: 600px;
+            max-width: 600px; /* Still limit max-width */
             display: flex;
             flex-direction: column;
             min-height: 100vh;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             border-radius: 8px;
             overflow: hidden;
+            position: relative; /* Important for side drawer positioning */
+        }
+        /* Persistent Side Navigation (for larger screens) */
+        .app-container.side-nav-open {
+             /* Add a transition for smooth animation */
+              transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .app-container.side-nav-open main {
+            margin-left: 280px; /* Width of the side navigation */
+             /* Add a transition to main content as well */
+              transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         header {
             background-color: #673ab7;
             color: white;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.26);
-            position: relative;
+             /* Remove position: relative; */
             z-index: 10;
         }
 
@@ -49,17 +60,17 @@
             display: flex;
             align-items: center;
             padding: 1rem;
-            height: 56px; /* Standard Material Design toolbar height */
+            height: 56px;
         }
 
         .toolbar h1 {
             flex-grow: 1;
             margin: 0 1rem;
-            font-size: 1.25rem; /* Slightly smaller heading */
+            font-size: 1.25rem;
             font-weight: 500;
-            white-space: nowrap;      /* Prevent title wrapping */
-            overflow: hidden;        /* Hide overflow */
-            text-overflow: ellipsis; /* Add ellipsis if title is too long */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .icon-button {
@@ -87,8 +98,9 @@
             box-shadow: 0 0 0 3px rgba(103, 58, 183, 0.5);
         }
 
+        /* Side Drawer (Mobile) */
         .side-drawer {
-            position: fixed;
+            position: fixed; /* Fixed for mobile */
             top: 0;
             left: 0;
             width: 280px;
@@ -107,6 +119,40 @@
             transform: translateX(0);
         }
 
+        /* Persistent Side Nav (Larger Screens) */
+        @media (min-width: 769px) { /* Adjust breakpoint as needed */
+              .side-drawer {
+                position: absolute;  /* Absolute positioning */
+                top: 0;
+                left: 0; /* Keep it on the left */
+                transform: translateX(0); /* Always visible */
+                width: 280px;
+                height: 100%; /* Take up full height */
+                z-index: 5; /* Lower z-index, behind header */
+                border-right: 1px solid rgba(0, 0, 0, 0.12); /* Add a subtle separator */
+            }
+              .app-container{
+                position: static; /*Return it to static*/
+                max-width: unset; /*remove max-width*/
+                border-radius: 0px; /*Remove border-radius*/
+              }
+            .side-drawer.open {
+                /* No transform change needed when already open */
+                transform: translateX(0); /* Ensure it's visible */
+            }
+             header {
+               position: relative; /* Ensure header is above side-nav */
+
+            }
+             .app-container.side-nav-open main {
+                margin-left: 0px; /* No extra margin needed when nav is *always* open */
+
+            }
+            .toolbar{
+              padding-left: 2rem; /*More left padding*/
+            }
+        }
+
         .drawer-header {
             display: flex;
             align-items: center;
@@ -114,10 +160,11 @@
             padding: 1rem;
             background-color: #673ab7;
             color: white;
-            height: 56px; /* Match toolbar height */
+            height: 56px;
         }
-        .drawer-header h2{
-            margin: 0; /*Remove default margin*/
+
+        .drawer-header h2 {
+            margin: 0;
             font-size: 1.25rem;
             font-weight: 500;
         }
@@ -135,7 +182,7 @@
 
         .menu-item i {
             margin-right: 1rem;
-            font-size: 1.25rem; /* Slightly larger icons */
+            font-size: 1.25rem;
         }
 
         .menu-item:hover, .menu-item:focus {
@@ -145,7 +192,7 @@
 
         .dropdown-menu {
             position: absolute;
-            top: 56px; /* Align with toolbar height */
+            top: 56px;
             right: 16px;
             background-color: white;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.26);
@@ -154,29 +201,31 @@
             z-index: 21;
             border-radius: 4px;
             padding: 0.5rem 0;
-             /* Use transform for animation */
-            transform: translateY(-10px); /* Start slightly above */
+            transform: translateY(-10px);
             opacity: 0;
             transition: transform 0.2s ease-out, opacity 0.2s ease-out;
         }
 
         .dropdown-menu.open {
             display: block;
-            transform: translateY(0); /* Animate to final position */
+            transform: translateY(0);
             opacity: 1;
         }
 
+
         main {
-            padding: 1rem;
+           padding: 1rem;
             flex-grow: 1;
             overflow-y: auto;
-             /* Add padding at the bottom to prevent content from being hidden by FAB */
-            padding-bottom: 72px; /* 56px (FAB height) + 16px (margin) */
+            padding-bottom: 72px;
+            margin-left: 0px; /*remove margin left*/
+             /* Add a transition for smooth animation */
+              transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .add-task-area {
-           position: fixed; /* Fixed position */
-            bottom: 16px;    /* Spacing from the bottom */
+            position: fixed;
+            bottom: 16px;
             left: 16px;
             right: 16px;
             display: flex;
@@ -187,9 +236,9 @@
             -webkit-backdrop-filter: blur(10px);
             border-radius: 8px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-            z-index: 5; /* Ensure it's above other content */
-            max-width: 568px; /* Adjust based on .app-container max-width */
-            margin: 0 auto; /* Center horizontally */
+            z-index: 5;
+            max-width: 568px;
+            margin: 0 auto;
         }
 
         #taskInput {
@@ -205,10 +254,9 @@
         #taskInput:focus {
             outline: none;
         }
-        #taskInput::placeholder { /* Style the placeholder */
-            color: #999;
+        #taskInput::placeholder{
+          color: #999;
         }
-
 
         #prioritySelect,
         #dueDateInput {
@@ -218,13 +266,11 @@
             border-radius: 4px;
             font-size: 0.9rem;
             background-color: rgba(255,255,255, 0.6);
-            /* Make selects slightly smaller */
             height: 40px;
         }
 
-
         .add-button {
-           background-color: #4caf50;
+            background-color: #4caf50;
             border: none;
             color: white;
             padding: 12px;
@@ -253,8 +299,10 @@
         #taskList {
             list-style: none;
             padding: 0;
+             margin-top: 1rem; /* Add top margin to the task list */
         }
-         #taskList li {
+
+        #taskList li {
             display: flex;
             align-items: center;
             padding: 12px;
@@ -267,9 +315,10 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
             transition: transform 0.1s ease-in-out, box-shadow 0.1s ease-in-out;
         }
-         #taskList li:last-child {
+
+        #taskList li:last-child {
             border-bottom: none;
-            margin-bottom: 0; /* Remove margin from last item */
+            margin-bottom: 0;
         }
 
         #taskList li:hover {
@@ -281,12 +330,13 @@
             flex-grow: 1;
             margin-right: 12px;
             word-break: break-word;
-            font-size: 1rem; /*  back to 1rem */
+            font-size: 1rem;
         }
-         .task-actions {
-            display: flex; /* Use flexbox to arrange buttons */
-            align-items: center; /* Vertically center buttons */
-            gap: 8px; /* Space between buttons */
+
+        .task-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .completed {
@@ -298,7 +348,6 @@
             background-color: #f44336;
             color: white;
             border: none;
-             /* Make buttons smaller */
             padding: 4px 8px;
             font-size: 0.8rem;
             border-radius: 4px;
@@ -314,6 +363,26 @@
             outline: none;
             box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.5);
         }
+         .editBtn {
+            background-color: #2196f3;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            font-size: 0.8rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .editBtn:hover {
+            background-color: #1976d2;
+        }
+
+        .editBtn:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.5);
+        }
+
 
         .offline-message {
             padding: 1rem;
@@ -339,7 +408,8 @@
             background-color: #444;
             color: white;
         }
-        body.dark-theme .menu-item {
+
+         body.dark-theme .menu-item {
           color: white;
         }
 
@@ -355,52 +425,47 @@
             margin-right: 8px;
             font-size: 1rem;
         }
-         .editBtn { /* Style the edit button */
-            background-color: #2196f3; /* Material Blue */
-            color: white;
-            border: none;
-            padding: 4px 8px;
-            font-size: 0.8rem;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
 
-        .editBtn:hover {
-            background-color: #1976d2; /* Darker blue */
-        }
-
-        .editBtn:focus {
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.5); /* Blue focus ring */
-        }
-
+        /* Filter Styles */
         .filter-options {
             padding: 1rem;
-            border-top: 1px solid #ddd;
+           /* border-top: 1px solid #ddd; */
             display: flex;
-            flex-wrap:wrap;
+            flex-wrap: wrap;
             gap: 10px;
             align-items: center;
+            flex-direction: column; /* Stack items vertically */
+            align-items: stretch; /* Stretch items to full width */
+
         }
 
-        .filter-options label{
-          margin-bottom: 0px;
+        .filter-options label {
+            margin-bottom: 0px;
+            width: 100%; /* Full width */
+            text-align: left; /* Align text to the left */
+
+        }
+        .filter-options select,
+        .filter-options input[type="date"] {
+            width: 100%; /* Full width */
+            box-sizing: border-box; /* Include padding and border in the element's total width */
         }
 
-        .filter-button{
+        .filter-button {
             background-color: #673ab7;
             border: none;
             color: white;
-            padding: 6px 12px;
+            padding: 8px 16px; /* More padding */
             text-align: center;
             text-decoration: none;
             display: inline-block;
-            font-size: 0.9rem;
+            font-size: 1rem; /* Larger font */
             cursor: pointer;
             border-radius: 4px;
             transition: background-color 0.2s;
+            width: 100%; /* Full width */
         }
+
         .filter-button:hover {
             background-color: #512da8;
         }
@@ -410,32 +475,50 @@
             box-shadow: 0 0 0 3px rgba(103, 58, 183, 0.5);
         }
 
+          /* Settings Styles */
+        .settings-options {
+            padding: 1rem;
+            /* border-top: 1px solid #ddd; */
+            display: none;
+             flex-direction: column;
+            align-items: stretch;
+
+        }
+
+        .settings-options.open {
+            display: flex; /*Use flex*/
+        }
+
+        .settings-options label {
+            margin-bottom: 8px;
+            display: block;
+            width: 100%;
+            text-align: left;
+        }
+        .settings-options input[type="number"]{
+          width: 100%;
+          box-sizing: border-box;
+          padding: 8px;
+          border-radius: 4px;
+          border: 1px solid #ccc;
+        }
+
+
         body.dark-theme #dueDateFilter,body.dark-theme #priorityFilter, body.dark-theme #taskInput, body.dark-theme .edit-input, body.dark-theme #prioritySelect, body.dark-theme #dueDateInput{
            background-color: rgba(255,255,255, 0.2);
           color: white;
           border: none;
         }
+        body.dark-theme .settings-options input[type="number"]{
+          background-color: rgba(255,255,255, 0.2);
+          color: white;
+          border: none;
+        }
 
-        body.dark-theme #dueDateFilter:focus,body.dark-theme #priorityFilter:focus, body.dark-theme #taskInput:focus, body.dark-theme .edit-input:focus, body.dark-theme #prioritySelect:focus, body.dark-theme #dueDateInput:focus {
+        body.dark-theme #dueDateFilter:focus,body.dark-theme #priorityFilter:focus, body.dark-theme #taskInput:focus, body.dark-theme .edit-input:focus, body.dark-theme #prioritySelect:focus, body.dark-theme #dueDateInput:focus, body.dark-theme .settings-options input[type="number"]:focus {
             border-color: #673ab7;
             box-shadow: 0 0 5px rgba(103, 58, 183, 0.5);
         }
-
-        .settings-options {
-            padding: 1rem;
-            border-top: 1px solid #ddd;
-            display: none;
-        }
-
-        .settings-options.open {
-           display: block;
-        }
-
-        .settings-options label{
-          margin-bottom: 8px;
-          display: block;
-        }
-
         body.dark-theme .settings-options{
             border-top: 1px solid #eee;
         }
@@ -448,20 +531,28 @@
            body.dark-theme .due-date{
             color: #bbb;
           }
+          .separator {
+            height: 1px;
+            background-color: #ddd;
+            margin: 1rem 0;
+          }
+          body.dark-theme .separator{
+            background-color: #eee;
+          }
+
 
         /* Responsive adjustments */
         @media (max-width: 768px) {
             .add-task-area {
-                position: static; /* Reset to default */
-                margin-bottom: 1rem; /* Add margin */
-                max-width: none; /* Allow full width */
+                position: static;
+                margin-bottom: 1rem;
+                max-width: none;
             }
-             main {
-              padding-bottom: 1rem; /*Remove the extra padding*/
+            main{
+              padding-bottom: 1rem;
             }
-
             #taskList li:last-child{
-              margin-bottom: 10px;/*Re add margin*/
+              margin-bottom: 10px;
             }
         }
 
@@ -483,8 +574,8 @@
                 </div>
                 <a href="#" class="menu-item"><i class="material-icons">home</i>Home</a>
                 <a href="#" class="menu-item" id="clearAllBtn"><i class="material-icons">delete_forever</i>Clear All Tasks</a>
-                <a href="#" class="menu-item"><i class="material-icons">filter_list</i>Filters</a>
-                 <div class="filter-options">
+                 <a href="#" class="menu-item"><i class="material-icons">filter_list</i>Filters</a>
+                <div class="filter-options">
                     <label for="priorityFilter">Priority:</label>
                     <select id="priorityFilter">
                         <option value="all">All</option>
@@ -496,14 +587,15 @@
                     <input type="date" id="dueDateFilter">
                     <button id="applyFiltersBtn" class="filter-button">Apply</button>
                 </div>
-                 <a href="#" class="menu-item settings-link"><i class="material-icons">settings</i>Settings</a>
+                 <div class="separator"></div>  <!-- Visual Separator -->
+                <a href="#" class="menu-item settings-link"><i class="material-icons">settings</i>Settings</a>
                 <div class="settings-options">
                     <label for="notificationToggle">
                         <input type="checkbox" id="notificationToggle"> Enable Notifications
                     </label>
                     <label for="reminderTime">Reminder Time (minutes before due):</label>
                     <input type="number" id="reminderTime" min="1" value="30">
-                 </div>
+                </div>
 
             </nav>
 
@@ -516,11 +608,12 @@
 
         <main>
             <section id="content">
+
                 <h2>Tasks</h2>
                 <ul id="taskList">
                     <!-- Tasks will be added here -->
                 </ul>
-                <!-- Add Task Area (FAB) -->
+                 <!-- Add Task Area (FAB) -->
                 <div class="add-task-area">
                     <input type="text" id="taskInput" placeholder="Add a task...">
                     <select id="prioritySelect">
@@ -533,8 +626,8 @@
                         <i class="material-icons">add</i>
                     </button>
                 </div>
-            </section>
 
+            </section>
             <section id="offline-section" style="display: none;">
                <div class="offline-message">
                     <h2>You are currently offline</h2>
@@ -542,10 +635,11 @@
                </div>
             </section>
         </main>
+
     </div>
 
     <script>
-       // --- JavaScript ---
+        // --- JavaScript ---
 
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -583,28 +677,50 @@
         const settingsOptions = document.querySelector('.settings-options');
         const notificationToggle = document.getElementById('notificationToggle');
         const reminderTimeInput = document.getElementById('reminderTime');
+         // --- App Container Reference ---
+        const appContainer = document.querySelector('.app-container'); // Get the app container
+
 
         // --- Menu Event Listeners ---
-        menuBtn.addEventListener('click', () => mainMenu.classList.add('open'));
-        closeMenuBtn.addEventListener('click', () => mainMenu.classList.remove('open'));
+        // Open side drawer (mobile)
+        menuBtn.addEventListener('click', () => {
+            mainMenu.classList.add('open');
+             appContainer.classList.add('side-nav-open');  // Add class to shift content
+        });
+        //Close drawer
+        closeMenuBtn.addEventListener('click', () => {
+           mainMenu.classList.remove('open');
+            appContainer.classList.remove('side-nav-open'); // Remove class
+        });
+
         moreOptionsBtn.addEventListener('click', () => moreOptionsMenu.classList.toggle('open'));
 
         settingsLink.addEventListener('click', (event) => {
             event.preventDefault();
             settingsOptions.classList.toggle('open');
+             mainMenu.classList.remove('open'); //Close the drawer
         });
 
-        document.addEventListener('click', (event) => {
-            if (!mainMenu.contains(event.target) && !menuBtn.contains(event.target)) {
+        // Close menus when clicking outside
+       document.addEventListener('click', (event) => {
+            // Close side drawer if open and click is outside
+            if (mainMenu.classList.contains('open') && !mainMenu.contains(event.target) && !menuBtn.contains(event.target)) {
                 mainMenu.classList.remove('open');
+                appContainer.classList.remove('side-nav-open'); // Remove class
+
             }
-            if (!moreOptionsMenu.contains(event.target) && !moreOptionsBtn.contains(event.target)) {
+
+            // Close "More Options" dropdown
+            if (moreOptionsMenu.classList.contains('open') && !moreOptionsMenu.contains(event.target) && !moreOptionsBtn.contains(event.target)) {
                 moreOptionsMenu.classList.remove('open');
             }
-             if (!settingsOptions.contains(event.target) && !settingsLink.contains(event.target) && settingsOptions.classList.contains('open')) {
+
+            // Close settings if open and click is outside
+            if (settingsOptions.classList.contains('open') && !settingsOptions.contains(event.target) && !settingsLink.contains(event.target)) {
                 settingsOptions.classList.remove('open');
             }
         });
+
 
         // --- Load Data (Tasks, Theme, and Settings) ---
         let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
@@ -641,7 +757,7 @@
                         <button class="deleteBtn" data-index="${index}" aria-label="Delete Task">Delete</button>
                     </div>
                 `;
-                 li.addEventListener('click', (event) => {
+                  li.addEventListener('click', (event) => {
                     if (!event.target.classList.contains('editBtn') && !event.target.classList.contains('deleteBtn')) {
                         toggleTaskComplete(index);
                     }
@@ -675,9 +791,9 @@
         }
 
         function deleteTask(event) {
-            event.stopPropagation();
+             event.stopPropagation();
             const index = event.target.dataset.index;
-              cancelNotification(tasks[index]);
+             cancelNotification(tasks[index]);
             tasks.splice(index, 1);
             localStorage.setItem('tasks', JSON.stringify(tasks));
             displayTasks();
@@ -688,8 +804,8 @@
             localStorage.setItem('tasks', JSON.stringify(tasks));
             displayTasks();
         }
-         function editTask(event) {
-            event.stopPropagation();
+        function editTask(event) {
+             event.stopPropagation();
             const index = event.target.dataset.index;
             const li = event.target.closest('li');
             const taskTextSpan = li.querySelector('.task-text');
@@ -719,7 +835,7 @@
         function clearAllTasks() {
              if (confirm("Are you sure you want to clear all tasks?")) {
                 tasks = [];
-                localStorage.removeItem('tasks');
+                                localStorage.removeItem('tasks');
                 displayTasks();
                  mainMenu.classList.remove('open');
             }
@@ -774,7 +890,7 @@
         }
 
         // --- Notification Functions ---
-        function scheduleNotification(task) {
+       function scheduleNotification(task) {
             if (!('Notification' in window)) {
                 console.warn("This browser does not support desktop notification");
                 return;
@@ -785,7 +901,7 @@
             const reminderTimeMs = reminderTime * 60 * 1000;
             const notificationTime = new Date(dueDate.getTime() - reminderTimeMs);
 
-             if (notificationTime <= now) {
+            if (notificationTime <= now) {
                 console.log("Reminder time is in the past. Not scheduling notification.");
                 return;
             }
@@ -810,17 +926,18 @@
         }
 
         function cancelNotification(task) {
-             if (task.notificationTimeout) {
+            if (task.notificationTimeout) {
                 clearTimeout(task.notificationTimeout);
                 delete task.notificationTimeout;
             }
         }
+
         function requestNotificationPermission() {
             if (!('Notification' in window)) {
                 alert("This browser does not support desktop notification");
                 return;
             }
-            if(Notification.permission !== "granted" && Notification.permission !== "denied"){
+           if(Notification.permission !== "granted" && Notification.permission !== "denied"){
                 Notification.requestPermission().then(permission => {
                     if (permission === "granted") {
                         console.log("Notification permission granted.");
@@ -838,10 +955,10 @@
                         console.log("Notification permission denied.");
                         notificationsEnabled = false;
                         localStorage.setItem('notificationsEnabled', 'false');
-                         notificationToggle.checked = false;
+                        notificationToggle.checked = false;
                     }
                 });
-            }
+           }
         }
 
         // --- Event Listeners (Main) ---
@@ -859,7 +976,7 @@
             localStorage.setItem('notificationsEnabled', notificationsEnabled.toString());
             if (notificationsEnabled) {
                 requestNotificationPermission();
-                 tasks.forEach(task => {
+                tasks.forEach(task => {
                     if (task.dueDate && !task.completed) {
                         scheduleNotification(task);
                     }
@@ -869,16 +986,16 @@
                      cancelNotification(task);
                 });
             }
-                });
+        });
 
         reminderTimeInput.addEventListener('change', () => {
             reminderTime = parseInt(reminderTimeInput.value) || 30;
             localStorage.setItem('reminderTime', reminderTime.toString());
             if (notificationsEnabled) {
                 tasks.forEach(task => {
-                    cancelNotification(task); // Cancel any existing
+                    cancelNotification(task);
                     if (task.dueDate) {
-                        scheduleNotification(task);  // Reschedule
+                        scheduleNotification(task);
                     }
                 });
             }
