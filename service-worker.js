@@ -1,15 +1,13 @@
 // service-worker.js
 
-const CACHE_NAME = 'my-pwa-cache-v1'; // Change this to a new version (e.g., v2) when you update your app
+const CACHE_NAME = 'my-pwa-cache-v2'; //  Incremented version!
 const urlsToCache = [
-    '/',           // Cache the root URL (usually your index.html)
-    '/index.html', // Explicitly cache index.html
-    // '/style.css',  // No longer needed - CSS is inlined
-    // '/script.js', // No longer needed - JS is inlined
+    '/',
+    '/index.html',
     '/manifest.json',
-    '/images/icon-192.png',  // Cache your icon(s)
+    '/images/icon-192.png',
     '/images/icon-512.png',
-    // Add any other static assets you want to cache here (images, fonts, etc.)
+    // Add any other *external* resources here (if you had any)
 ];
 
 self.addEventListener('install', event => {
@@ -20,7 +18,7 @@ self.addEventListener('install', event => {
                 return cache.addAll(urlsToCache);
             })
             .catch(err => {
-                console.error('Failed to open cache:', err); // Add error handling
+                console.error('Failed to open cache:', err);
             })
     );
 });
@@ -34,8 +32,6 @@ self.addEventListener('fetch', event => {
                     return response;
                 }
 
-                // IMPORTANT: Clone the request. A request is a stream
-                // and can only be consumed once.
                 const fetchRequest = event.request.clone();
 
                 return fetch(fetchRequest)
@@ -45,7 +41,6 @@ self.addEventListener('fetch', event => {
                             return response;
                         }
 
-                        // IMPORTANT: Clone the response.
                         const responseToCache = response.clone();
 
                         caches.open(CACHE_NAME)
@@ -53,32 +48,27 @@ self.addEventListener('fetch', event => {
                                 cache.put(event.request, responseToCache);
                             })
                             .catch(err => {
-                                console.error('Failed to add response to cache:', err); // Add error handling
+                                console.error('Failed to add response to cache:', err);
                             });
 
                         return response;
                     })
                     .catch(error => {
-                        // Handle fetch errors (e.g., network issues)
                         console.error("Fetch failed:", error);
-                        // Optionally, return a custom offline response here
-                        // For example, you could return a cached "offline.html" page:
-                        // return caches.match('/offline.html');
+                        // Optionally return a custom offline response (e.g., a cached offline.html)
                     });
             })
     );
 });
 
-
-
 self.addEventListener('activate', event => {
-    const cacheWhitelist = [CACHE_NAME];  // IMPORTANT: Only keep the current cache
+    const cacheWhitelist = [CACHE_NAME];
 
     event.waitUntil(
         caches.keys().then(cacheNames => {
             return Promise.all(
                 cacheNames.map(cacheName => {
-                    // Delete old caches that aren't in the whitelist
+                    // Delete old caches
                     if (cacheWhitelist.indexOf(cacheName) === -1) {
                         return caches.delete(cacheName);
                     }
