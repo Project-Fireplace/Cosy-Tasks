@@ -4,13 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>To-Do List PWA</title>
-    <link rel="manifest" href="manifest.json">  <!-- Manifest still separate -->
-    <link rel="apple-touch-icon" href="images/icon-192.png">  <!-- Icons still separate -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="images/icon-192.png">
     <meta name="theme-color" content="#673ab7">
+    <!-- Material Icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Roboto Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 
     <style>
-        /* --- CSS (All styles from style.css) --- */
+        /* --- CSS --- */
         body {
             font-family: 'Roboto', sans-serif;
             margin: 0;
@@ -20,6 +23,7 @@
             display: flex;
             justify-content: center;
             min-height: 100vh;
+            overflow-x: hidden; /* Prevent horizontal scroll */
         }
 
         .app-container {
@@ -28,6 +32,9 @@
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
         }
 
         header {
@@ -42,13 +49,17 @@
             display: flex;
             align-items: center;
             padding: 1rem;
+            height: 56px; /* Standard Material Design toolbar height */
         }
 
         .toolbar h1 {
             flex-grow: 1;
             margin: 0 1rem;
-            font-size: 1.5rem;
-            font-weight: 400;
+            font-size: 1.25rem; /* Slightly smaller heading */
+            font-weight: 500;
+            white-space: nowrap;      /* Prevent title wrapping */
+            overflow: hidden;        /* Hide overflow */
+            text-overflow: ellipsis; /* Add ellipsis if title is too long */
         }
 
         .icon-button {
@@ -60,24 +71,34 @@
             padding: 0.5rem;
             border-radius: 50%;
             transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
         }
 
         .icon-button:hover {
             background-color: rgba(255, 255, 255, 0.2);
         }
 
+        .icon-button:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(103, 58, 183, 0.5);
+        }
+
         .side-drawer {
             position: fixed;
             top: 0;
             left: 0;
-            width: 250px;
+            width: 280px;
             height: 100%;
-            background-color: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
             box-shadow: 2px 0 5px rgba(0, 0, 0, 0.26);
             transform: translateX(-100%);
-            transition: transform 0.3s ease-in-out;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 20;
             overflow-y: auto;
         }
@@ -93,6 +114,12 @@
             padding: 1rem;
             background-color: #673ab7;
             color: white;
+            height: 56px; /* Match toolbar height */
+        }
+        .drawer-header h2{
+            margin: 0; /*Remove default margin*/
+            font-size: 1.25rem;
+            font-weight: 500;
         }
 
         .menu-item {
@@ -102,92 +129,164 @@
             text-decoration: none;
             color: #333;
             transition: background-color 0.2s;
+            border-radius: 4px;
+            margin: 0.25rem 0;
         }
 
         .menu-item i {
             margin-right: 1rem;
+            font-size: 1.25rem; /* Slightly larger icons */
         }
 
-        .menu-item:hover {
+        .menu-item:hover, .menu-item:focus {
             background-color: #f0f0f0;
+            outline: none;
         }
 
         .dropdown-menu {
             position: absolute;
-            top: 56px;
+            top: 56px; /* Align with toolbar height */
             right: 16px;
             background-color: white;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.26);
-            min-width: 160px;
+            min-width: 180px;
             display: none;
             z-index: 21;
             border-radius: 4px;
+            padding: 0.5rem 0;
+             /* Use transform for animation */
+            transform: translateY(-10px); /* Start slightly above */
+            opacity: 0;
+            transition: transform 0.2s ease-out, opacity 0.2s ease-out;
         }
 
         .dropdown-menu.open {
             display: block;
+            transform: translateY(0); /* Animate to final position */
+            opacity: 1;
         }
 
         main {
             padding: 1rem;
             flex-grow: 1;
             overflow-y: auto;
+             /* Add padding at the bottom to prevent content from being hidden by FAB */
+            padding-bottom: 72px; /* 56px (FAB height) + 16px (margin) */
         }
 
         .add-task-area {
+           position: fixed; /* Fixed position */
+            bottom: 16px;    /* Spacing from the bottom */
+            left: 16px;
+            right: 16px;
             display: flex;
             align-items: center;
-            margin-bottom: 1rem;
+            padding: 0.5rem;
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+            z-index: 5; /* Ensure it's above other content */
+            max-width: 568px; /* Adjust based on .app-container max-width */
+            margin: 0 auto; /* Center horizontally */
         }
 
         #taskInput {
             flex-grow: 1;
+            padding: 12px;
+            margin-right: 12px;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            background: none;
+        }
+
+        #taskInput:focus {
+            outline: none;
+        }
+        #taskInput::placeholder { /* Style the placeholder */
+            color: #999;
+        }
+
+
+        #prioritySelect,
+        #dueDateInput {
             padding: 10px;
             margin-right: 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
-            font-size: 1rem;
+            font-size: 0.9rem;
+            background-color: rgba(255,255,255, 0.6);
+            /* Make selects slightly smaller */
+            height: 40px;
         }
 
+
         .add-button {
-            background-color: #4caf50;
+           background-color: #4caf50;
             border: none;
             color: white;
-            padding: 10px;
-            font-size: 1.5rem;
+            padding: 12px;
+            font-size: 1.75rem;
             cursor: pointer;
             border-radius: 50%;
-            transition: background-color 0.2s;
+            transition: background-color 0.2s, transform 0.1s ease-in-out;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.26);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
         }
 
         .add-button:hover {
             background-color: #388e3c;
+            transform: scale(1.1);
+        }
+
+        .add-button:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.5);
         }
 
         #taskList {
             list-style: none;
             padding: 0;
         }
-
-        #taskList li {
+         #taskList li {
             display: flex;
             align-items: center;
-            padding: 10px;
+            padding: 12px;
             border-bottom: 1px solid #ddd;
-            background-color: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
-            margin-bottom: 8px;
-            border-radius: 4px;
+            background-color: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            margin-bottom: 10px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+            transition: transform 0.1s ease-in-out, box-shadow 0.1s ease-in-out;
+        }
+         #taskList li:last-child {
+            border-bottom: none;
+            margin-bottom: 0; /* Remove margin from last item */
         }
 
-        #taskList li:last-child {
-            border-bottom: none;
+        #taskList li:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
         }
-         .task-text {
+
+        .task-text {
             flex-grow: 1;
-            margin-right: 10px;
-            word-break: break-word; /* Prevent long words from overflowing */
+            margin-right: 12px;
+            word-break: break-word;
+            font-size: 1rem; /*  back to 1rem */
+        }
+         .task-actions {
+            display: flex; /* Use flexbox to arrange buttons */
+            align-items: center; /* Vertically center buttons */
+            gap: 8px; /* Space between buttons */
         }
 
         .completed {
@@ -199,7 +298,9 @@
             background-color: #f44336;
             color: white;
             border: none;
-            padding: 5px 10px;
+             /* Make buttons smaller */
+            padding: 4px 8px;
+            font-size: 0.8rem;
             border-radius: 4px;
             cursor: pointer;
             transition: background-color 0.2s;
@@ -208,6 +309,12 @@
         .deleteBtn:hover {
             background-color: #d32f2f;
         }
+
+        .deleteBtn:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.5);
+        }
+
         .offline-message {
             padding: 1rem;
             background-color: rgba(255, 255, 255, 0.9);
@@ -215,16 +322,18 @@
             -webkit-backdrop-filter: blur(10px);
             border-radius: 4px;
         }
-          body.dark-theme {
+
+        body.dark-theme {
             background-color: #333;
             color: #eee;
         }
-        body.dark-theme .offline-message, body.dark-theme  .side-drawer{
-          background-color: rgba(255, 255, 255, 0.2); /* Darker translucent */
+
+        body.dark-theme .offline-message, body.dark-theme .side-drawer {
+            background-color: rgba(0, 0, 0, 0.7);
         }
 
-        body.dark-theme #taskList li{
-           background-color: rgba(255, 255, 255, 0.1); /* Slight transparency */
+        body.dark-theme #taskList li {
+            background-color: rgba(0, 0, 0, 0.5);
         }
         body.dark-theme .menu-item:hover {
             background-color: #444;
@@ -233,21 +342,39 @@
         body.dark-theme .menu-item {
           color: white;
         }
-        /* Priority Colors */
-        .priority-high { color: red; }
-        .priority-medium { color: orange; }
-        .priority-low { color: green; }
 
-        /* Edit Mode Styles */
+        .priority-high { color: #d32f2f; font-weight: 500; }
+        .priority-medium { color: #ff9800; font-weight: 500; }
+        .priority-low { color: #4caf50; font-weight: 500; }
+
         .edit-input {
-            width: 70%; /* Adjust width as needed */
-            padding: 5px;
+            width: 70%;
+            padding: 8px;
             border: 1px solid #ccc;
             border-radius: 4px;
-             margin-right: 5px;
+            margin-right: 8px;
+            font-size: 1rem;
+        }
+         .editBtn { /* Style the edit button */
+            background-color: #2196f3; /* Material Blue */
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            font-size: 0.8rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
         }
 
-        /* Filter Styles */
+        .editBtn:hover {
+            background-color: #1976d2; /* Darker blue */
+        }
+
+        .editBtn:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.5); /* Blue focus ring */
+        }
+
         .filter-options {
             padding: 1rem;
             border-top: 1px solid #ddd;
@@ -256,45 +383,86 @@
             gap: 10px;
             align-items: center;
         }
+
         .filter-options label{
-          margin-bottom: 0px; /*For alignment*/
+          margin-bottom: 0px;
         }
 
         .filter-button{
-            background-color: #4CAF50;
+            background-color: #673ab7;
             border: none;
             color: white;
-            padding: 5px 10px;
+            padding: 6px 12px;
             text-align: center;
             text-decoration: none;
             display: inline-block;
-            font-size: 14px;
+            font-size: 0.9rem;
             cursor: pointer;
             border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        .filter-button:hover {
+            background-color: #512da8;
+        }
+
+        .filter-button:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(103, 58, 183, 0.5);
         }
 
         body.dark-theme #dueDateFilter,body.dark-theme #priorityFilter, body.dark-theme #taskInput, body.dark-theme .edit-input, body.dark-theme #prioritySelect, body.dark-theme #dueDateInput{
-          background-color: rgba(255,255,255, 0.2);
+           background-color: rgba(255,255,255, 0.2);
           color: white;
+          border: none;
         }
-        /* Style for the input when focused */
+
         body.dark-theme #dueDateFilter:focus,body.dark-theme #priorityFilter:focus, body.dark-theme #taskInput:focus, body.dark-theme .edit-input:focus, body.dark-theme #prioritySelect:focus, body.dark-theme #dueDateInput:focus {
             border-color: #673ab7;
-            box-shadow: 0 0 5px rgba(103, 58, 183, 0.5); /* Add a subtle glow effect */
+            box-shadow: 0 0 5px rgba(103, 58, 183, 0.5);
         }
-        /* Settings Options Styles */
 
         .settings-options {
             padding: 1rem;
             border-top: 1px solid #ddd;
+            display: none;
         }
+
+        .settings-options.open {
+           display: block;
+        }
+
         .settings-options label{
-          margin-bottom: 8px; /*For alignment*/
+          margin-bottom: 8px;
           display: block;
         }
 
         body.dark-theme .settings-options{
             border-top: 1px solid #eee;
+        }
+
+          .due-date {
+            font-size: 0.85rem;
+            color: #777;
+            margin-left: 0.5rem;
+         }
+           body.dark-theme .due-date{
+            color: #bbb;
+          }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .add-task-area {
+                position: static; /* Reset to default */
+                margin-bottom: 1rem; /* Add margin */
+                max-width: none; /* Allow full width */
+            }
+             main {
+              padding-bottom: 1rem; /*Remove the extra padding*/
+            }
+
+            #taskList li:last-child{
+              margin-bottom: 10px;/*Re add margin*/
+            }
         }
 
     </style>
@@ -303,37 +471,37 @@
     <div class="app-container">
         <header>
             <div class="toolbar">
-                <button id="menuBtn" class="icon-button"><i class="material-icons">menu</i></button>
+                <button id="menuBtn" class="icon-button" aria-label="Open Menu"><i class="material-icons">menu</i></button>
                 <h1>My To-Do List</h1>
-                <button id="moreOptionsBtn" class="icon-button"><i class="material-icons">more_vert</i></button>
+                <button id="moreOptionsBtn" class="icon-button" aria-label="More Options"><i class="material-icons">more_vert</i></button>
             </div>
 
             <nav id="mainMenu" class="side-drawer">
                 <div class="drawer-header">
                     <h2>Menu</h2>
-                    <button id="closeMenuBtn" class="icon-button"><i class="material-icons">close</i></button>
+                    <button id="closeMenuBtn" class="icon-button" aria-label="Close Menu"><i class="material-icons">close</i></button>
                 </div>
                 <a href="#" class="menu-item"><i class="material-icons">home</i>Home</a>
                 <a href="#" class="menu-item" id="clearAllBtn"><i class="material-icons">delete_forever</i>Clear All Tasks</a>
                 <a href="#" class="menu-item"><i class="material-icons">filter_list</i>Filters</a>
                  <div class="filter-options">
-                    <label>Priority:</label>
+                    <label for="priorityFilter">Priority:</label>
                     <select id="priorityFilter">
                         <option value="all">All</option>
                         <option value="high">High</option>
                         <option value="medium">Medium</option>
                         <option value="low">Low</option>
                     </select>
-                    <label>Due Date:</label>
+                    <label for="dueDateFilter">Due Date:</label>
                     <input type="date" id="dueDateFilter">
                     <button id="applyFiltersBtn" class="filter-button">Apply</button>
                 </div>
                  <a href="#" class="menu-item settings-link"><i class="material-icons">settings</i>Settings</a>
-                <div class="settings-options" style="display: none;">
-                    <label>
+                <div class="settings-options">
+                    <label for="notificationToggle">
                         <input type="checkbox" id="notificationToggle"> Enable Notifications
                     </label>
-                    <label>Reminder Time (minutes before due):</label>
+                    <label for="reminderTime">Reminder Time (minutes before due):</label>
                     <input type="number" id="reminderTime" min="1" value="30">
                  </div>
 
@@ -348,6 +516,11 @@
 
         <main>
             <section id="content">
+                <h2>Tasks</h2>
+                <ul id="taskList">
+                    <!-- Tasks will be added here -->
+                </ul>
+                <!-- Add Task Area (FAB) -->
                 <div class="add-task-area">
                     <input type="text" id="taskInput" placeholder="Add a task...">
                     <select id="prioritySelect">
@@ -356,15 +529,10 @@
                         <option value="low">Low</option>
                     </select>
                     <input type="date" id="dueDateInput">
-                    <button id="addTaskBtn" class="add-button">
+                    <button id="addTaskBtn" class="add-button" aria-label="Add Task">
                         <i class="material-icons">add</i>
                     </button>
                 </div>
-
-                <h2>Tasks</h2>
-                <ul id="taskList">
-                    <!-- Tasks will be added here -->
-                </ul>
             </section>
 
             <section id="offline-section" style="display: none;">
@@ -373,16 +541,15 @@
                    <p>Some features may be unavailable.</p>
                </div>
             </section>
-
         </main>
     </div>
 
     <script>
-        // --- JavaScript (All code from script.js) ---
+       // --- JavaScript ---
 
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('service-worker.js')  // Still loads service-worker.js
+                navigator.serviceWorker.register('service-worker.js')
                     .then(registration => console.log('Service Worker registered! Scope is: ', registration.scope))
                     .catch(error => console.log('Service Worker registration failed: ', error));
             });
@@ -405,13 +572,13 @@
         const toggleCompletedBtn = document.getElementById('toggleCompletedBtn');
         const prioritySelect = document.getElementById('prioritySelect');
         const dueDateInput = document.getElementById('dueDateInput');
-        const themeToggleBtn = document.getElementById('themeToggleBtn'); //not used
-        const settingsMenu = document.getElementById('settingsMenu'); //not used
-        //Filter elements
+
+        // Filter elements
         const priorityFilter = document.getElementById('priorityFilter');
         const dueDateFilter = document.getElementById('dueDateFilter');
         const applyFiltersBtn = document.getElementById('applyFiltersBtn');
-        //Settings
+
+        // Settings
         const settingsLink = document.querySelector('.settings-link');
         const settingsOptions = document.querySelector('.settings-options');
         const notificationToggle = document.getElementById('notificationToggle');
@@ -421,10 +588,10 @@
         menuBtn.addEventListener('click', () => mainMenu.classList.add('open'));
         closeMenuBtn.addEventListener('click', () => mainMenu.classList.remove('open'));
         moreOptionsBtn.addEventListener('click', () => moreOptionsMenu.classList.toggle('open'));
-        // themeToggleBtn.addEventListener('click', toggleTheme); //Removed as it is not used
 
-        settingsLink.addEventListener('click', () => {
-            settingsOptions.style.display = settingsOptions.style.display === 'none' ? 'block' : 'none';
+        settingsLink.addEventListener('click', (event) => {
+            event.preventDefault();
+            settingsOptions.classList.toggle('open');
         });
 
         document.addEventListener('click', (event) => {
@@ -433,6 +600,9 @@
             }
             if (!moreOptionsMenu.contains(event.target) && !moreOptionsBtn.contains(event.target)) {
                 moreOptionsMenu.classList.remove('open');
+            }
+             if (!settingsOptions.contains(event.target) && !settingsLink.contains(event.target) && settingsOptions.classList.contains('open')) {
+                settingsOptions.classList.remove('open');
             }
         });
 
@@ -449,15 +619,14 @@
         reminderTimeInput.value = reminderTime;
 
 
-        // --- Task Functions ---
-        function displayTasks() {
+       function displayTasks() {
             const priority = priorityFilter.value;
             const dueDate = dueDateFilter.value;
 
             taskList.innerHTML = '';
             tasks.forEach((task, index) => {
                 if (!showCompleted && task.completed) return;
-                // Apply filters
+
                 if (priority !== 'all' && task.priority !== priority) return;
                 if (dueDate && task.dueDate !== dueDate) return;
 
@@ -466,13 +635,13 @@
                     <span class="task-text ${task.completed ? 'completed' : ''} priority-${task.priority}">
                         ${task.text}
                     </span>
-                   ${task.dueDate ? `<span class="due-date"> (Due: ${task.dueDate})</span>` : ''}
+                    ${task.dueDate ? `<span class="due-date"> (Due: ${task.dueDate})</span>` : ''}
                     <div class="task-actions">
-                        <button class="editBtn" data-index="${index}">Edit</button>
-                        <button class="deleteBtn" data-index="${index}">Delete</button>
+                        <button class="editBtn" data-index="${index}" aria-label="Edit Task">Edit</button>
+                        <button class="deleteBtn" data-index="${index}" aria-label="Delete Task">Delete</button>
                     </div>
                 `;
-                li.addEventListener('click', (event) => {
+                 li.addEventListener('click', (event) => {
                     if (!event.target.classList.contains('editBtn') && !event.target.classList.contains('deleteBtn')) {
                         toggleTaskComplete(index);
                     }
@@ -508,7 +677,7 @@
         function deleteTask(event) {
             event.stopPropagation();
             const index = event.target.dataset.index;
-             cancelNotification(tasks[index]);
+              cancelNotification(tasks[index]);
             tasks.splice(index, 1);
             localStorage.setItem('tasks', JSON.stringify(tasks));
             displayTasks();
@@ -519,15 +688,14 @@
             localStorage.setItem('tasks', JSON.stringify(tasks));
             displayTasks();
         }
-
-        function editTask(event) {
+         function editTask(event) {
             event.stopPropagation();
             const index = event.target.dataset.index;
             const li = event.target.closest('li');
             const taskTextSpan = li.querySelector('.task-text');
             const currentText = tasks[index].text;
 
-            taskTextSpan.innerHTML = `<input type="text" class="edit-input" value="${currentText}">`;
+            taskTextSpan.innerHTML = `<input type="text" class="edit-input" value="${currentText}" aria-label="Edit task text">`;
             const editInput = li.querySelector('.edit-input');
             editInput.focus();
 
@@ -548,9 +716,8 @@
             });
         }
 
-
         function clearAllTasks() {
-            if (confirm("Are you sure you want to clear all tasks?")) {
+             if (confirm("Are you sure you want to clear all tasks?")) {
                 tasks = [];
                 localStorage.removeItem('tasks');
                 displayTasks();
@@ -569,18 +736,18 @@
                     reader.onload = (e) => {
                         try {
                             const importedTasks = JSON.parse(e.target.result);
-                            if (Array.isArray(importedTasks) && importedTasks.every(t => typeof t.text === 'string' && typeof t.completed === 'boolean' && typeof t.priority === 'string')) {
-                                    tasks = importedTasks;
-                                    localStorage.setItem('tasks', JSON.stringify(tasks));
-                                    displayTasks();
-                                    alert('Tasks imported successfully!');
-                                } else{
-                                     alert('Invalid file format. Please import a valid JSON file with text, completed, and priority fields.');
-                                }
+                            if (Array.isArray(importedTasks) && importedTasks.every(t => typeof t.text === 'string' && typeof t.completed === 'boolean' && typeof t.priority === 'string' && (t.dueDate === null || typeof t.dueDate === 'string'))) {
+                                tasks = importedTasks;
+                                localStorage.setItem('tasks', JSON.stringify(tasks));
+                                displayTasks();
+                                alert('Tasks imported successfully!');
+                            } else {
+                                alert('Invalid file format. Please import a valid JSON file with text, completed, priority, and dueDate fields.');
+                            }
                         } catch (error) {
                             alert('Error importing tasks: ' + error.message);
                         }
-                        mainMenu.classList.remove('open');
+                         mainMenu.classList.remove('open');
                     };
                     reader.readAsText(file);
                 }
@@ -596,17 +763,17 @@
             document.body.appendChild(downloadAnchorNode);
             downloadAnchorNode.click();
             downloadAnchorNode.remove();
-            mainMenu.classList.remove('open');
+             mainMenu.classList.remove('open');
         }
 
         function toggleCompletedTasks() {
             showCompleted = !showCompleted;
             displayTasks();
             toggleCompletedBtn.textContent = showCompleted ? "Hide Completed" : "Show Completed";
-            mainMenu.classList.remove('open');
+             mainMenu.classList.remove('open');
         }
-        // --- Notification Functions ---
 
+        // --- Notification Functions ---
         function scheduleNotification(task) {
             if (!('Notification' in window)) {
                 console.warn("This browser does not support desktop notification");
@@ -618,16 +785,15 @@
             const reminderTimeMs = reminderTime * 60 * 1000;
             const notificationTime = new Date(dueDate.getTime() - reminderTimeMs);
 
-           if (notificationTime <= now) {
+             if (notificationTime <= now) {
                 console.log("Reminder time is in the past. Not scheduling notification.");
                 return;
             }
 
-
             const timeUntilNotification = notificationTime.getTime() - now.getTime();
 
-           const notificationTimeout = setTimeout(() => {
-              if(Notification.permission === "granted"){
+            const notificationTimeout = setTimeout(() => {
+                if(Notification.permission === "granted"){
                     showNotification(task);
                 }
 
@@ -644,7 +810,7 @@
         }
 
         function cancelNotification(task) {
-            if (task.notificationTimeout) {
+             if (task.notificationTimeout) {
                 clearTimeout(task.notificationTimeout);
                 delete task.notificationTimeout;
             }
@@ -654,7 +820,7 @@
                 alert("This browser does not support desktop notification");
                 return;
             }
-             if(Notification.permission !== "granted" && Notification.permission !== "denied"){
+            if(Notification.permission !== "granted" && Notification.permission !== "denied"){
                 Notification.requestPermission().then(permission => {
                     if (permission === "granted") {
                         console.log("Notification permission granted.");
@@ -672,7 +838,7 @@
                         console.log("Notification permission denied.");
                         notificationsEnabled = false;
                         localStorage.setItem('notificationsEnabled', 'false');
-                        notificationToggle.checked = false;
+                         notificationToggle.checked = false;
                     }
                 });
             }
@@ -687,37 +853,35 @@
         toggleCompletedBtn.addEventListener('click', toggleCompletedTasks);
         applyFiltersBtn.addEventListener('click', displayTasks);
 
-        //Settings Listeners
+        // Settings Listeners
         notificationToggle.addEventListener('change', () => {
             notificationsEnabled = notificationToggle.checked;
             localStorage.setItem('notificationsEnabled', notificationsEnabled.toString());
             if (notificationsEnabled) {
                 requestNotificationPermission();
-                tasks.forEach(task => {
+                 tasks.forEach(task => {
                     if (task.dueDate && !task.completed) {
                         scheduleNotification(task);
                     }
                 });
             } else {
-                  tasks.forEach(task => {
-                    cancelNotification(task);
-                  });
+                 tasks.forEach(task => {
+                     cancelNotification(task);
+                });
             }
-
-        });
+                });
 
         reminderTimeInput.addEventListener('change', () => {
             reminderTime = parseInt(reminderTimeInput.value) || 30;
             localStorage.setItem('reminderTime', reminderTime.toString());
             if (notificationsEnabled) {
                 tasks.forEach(task => {
-                    cancelNotification(task);
+                    cancelNotification(task); // Cancel any existing
                     if (task.dueDate) {
-                        scheduleNotification(task);
+                        scheduleNotification(task);  // Reschedule
                     }
                 });
             }
-
         });
 
         // --- Initial Setup ---
