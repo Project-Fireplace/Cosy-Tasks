@@ -13,7 +13,7 @@ const taskInput = document.getElementById('taskInput');
 const addTaskBtn = document.getElementById('addTaskBtn');
 const taskList = document.getElementById('taskList');
 const offlineSection = document.getElementById('offline-section');
-const contentSection = document.getElementById('content'); // Still good to have
+const contentSection = document.getElementById('content'); // Keep for consistency
 const menuBtn = document.getElementById('menuBtn');
 const closeMenuBtn = document.getElementById('closeMenuBtn');
 const mainMenu = document.getElementById('mainMenu');
@@ -36,6 +36,8 @@ const settingsLink = document.querySelector('.settings-link');
 const settingsOptions = document.querySelector('.settings-options');
 const notificationToggle = document.getElementById('notificationToggle');
 const reminderTimeInput = document.getElementById('reminderTime');
+const filterLink = document.querySelector('.filter-link'); // Get filter link
+const filterOptions = document.querySelector('.filter-options');
 
 
 // --- Menu Event Listeners ---
@@ -49,9 +51,17 @@ closeMenuBtn.addEventListener('click', () => {
 
 moreOptionsBtn.addEventListener('click', () => moreOptionsMenu.classList.toggle('open'));
 
+// Settings Toggle
 settingsLink.addEventListener('click', (event) => {
     event.preventDefault();
     settingsOptions.classList.toggle('open');
+    mainMenu.classList.remove('open'); // Close the drawer
+});
+
+//Filter toggle
+filterLink.addEventListener('click', (event) => {
+    event.preventDefault();
+    filterOptions.classList.toggle('open');
      mainMenu.classList.remove('open');
 });
 
@@ -65,6 +75,10 @@ document.addEventListener('click', (event) => {
     }
     if (settingsOptions.classList.contains('open') && !settingsOptions.contains(event.target) && !settingsLink.contains(event.target)) {
         settingsOptions.classList.remove('open');
+    }
+    // Close filter if open and click is outside
+     if (filterOptions.classList.contains('open') && !filterOptions.contains(event.target) && !filterLink.contains(event.target)) {
+         filterOptions.classList.remove('open');
     }
 });
 
@@ -103,11 +117,10 @@ function displayTasks() {
                 <button class="deleteBtn" data-index="${index}" aria-label="Delete Task">Delete</button>
             </div>
         `;
-          li.addEventListener('click', (event) => {
+        li.addEventListener('click', (event) => {
             if (!event.target.classList.contains('editBtn') && !event.target.classList.contains('deleteBtn')) {
                 toggleTaskComplete(index);
             }
-
         });
         taskList.appendChild(li);
     });
@@ -137,13 +150,14 @@ function addTask() {
 }
 
 function deleteTask(event) {
-     event.stopPropagation();
+    event.stopPropagation();
     const index = event.target.dataset.index;
-    cancelNotification(tasks[index]);
+     cancelNotification(tasks[index]);
     tasks.splice(index, 1);
     localStorage.setItem('tasks', JSON.stringify(tasks));
     displayTasks();
 }
+
 function toggleTaskComplete(index) {
     tasks[index].completed = !tasks[index].completed;
     localStorage.setItem('tasks', JSON.stringify(tasks));
@@ -179,11 +193,11 @@ function editTask(event) {
 }
 
 function clearAllTasks() {
-    if (confirm("Are you sure you want to clear all tasks?")) {
+     if (confirm("Are you sure you want to clear all tasks?")) {
         tasks = [];
         localStorage.removeItem('tasks');
         displayTasks();
-        mainMenu.classList.remove('open');
+        mainMenu.classList.remove('open'); // Close drawer
     }
 }
 
@@ -209,150 +223,4 @@ function importTasks() {
                 } catch (error) {
                     alert('Error importing tasks: ' + error.message);
                 }
-                 mainMenu.classList.remove('open');
-            };
-            reader.readAsText(file);
-        }
-    };
-    input.click();
-}
-
-function exportTasks() {
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(tasks));
-    const downloadAnchorNode = document.createElement('a');
-    downloadAnchorNode.setAttribute("href", dataStr);
-    downloadAnchorNode.setAttribute("download", "tasks.json");
-    document.body.appendChild(downloadAnchorNode);
-    downloadAnchorNode.click();
-    downloadAnchorNode.remove();
-     mainMenu.classList.remove('open');
-}
-
-function toggleCompletedTasks() {
-    showCompleted = !showCompleted;
-    displayTasks();
-    toggleCompletedBtn.textContent = showCompleted ? "Hide Completed" : "Show Completed";
-     mainMenu.classList.remove('open');
-}
-
-// --- Notification Functions ---
-
-function scheduleNotification(task) {
-    if (!('Notification' in window)) {
-        console.warn("This browser does not support desktop notification");
-        return;
-    }
-
-    const now = new Date();
-    const dueDate = new Date(task.dueDate);
-    const reminderTimeMs = reminderTime * 60 * 1000;
-    const notificationTime = new Date(dueDate.getTime() - reminderTimeMs);
-
-     if (notificationTime <= now) {
-        console.log("Reminder time is in the past. Not scheduling notification.");
-        return;
-    }
-
-    const timeUntilNotification = notificationTime.getTime() - now.getTime();
-
-    const notificationTimeout = setTimeout(() => {
-        if(Notification.permission === "granted"){
-            showNotification(task);
-        }
-        }, timeUntilNotification);
-
-    task.notificationTimeout = notificationTimeout;
-}
-
-function showNotification(task) {
-    const notification = new Notification(`Task Reminder: ${task.text}`, {
-        body: `Your task "${task.text}" is due soon!`,
-        icon: 'images/icon-192.png',
-    });
-}
-
-function cancelNotification(task) {
-    if (task.notificationTimeout) {
-        clearTimeout(task.notificationTimeout);
-        delete task.notificationTimeout;
-    }
-}
-
-function requestNotificationPermission() {
-    if (!('Notification' in window)) {
-        alert("This browser does not support desktop notification");
-        return;
-    }
-    if(Notification.permission !== "granted" && Notification.permission !== "denied"){
-
-        Notification.requestPermission().then(permission => {
-            if (permission === "granted") {
-                console.log("Notification permission granted.");
-                notificationsEnabled = true;
-                localStorage.setItem('notificationsEnabled', 'true');
-                notificationToggle.checked = true;
-
-                tasks.forEach(task => {
-                    if (task.dueDate) {
-                        scheduleNotification(task);
-                    }
-                });
-
-            } else{
-                console.log("Notification permission denied.");
-                notificationsEnabled = false;
-                localStorage.setItem('notificationsEnabled', 'false');
-                notificationToggle.checked = false;
-            }
-        });
-    }
-}
-
-// --- Event Listeners (Main) ---
-addTaskBtn.addEventListener('click', addTask);
-taskInput.addEventListener('keypress', (event) => { if (event.key === 'Enter') { addTask(); } });
-clearAllBtn.addEventListener('click', clearAllTasks);
-importBtn.addEventListener('click', importTasks);
-exportBtn.addEventListener('click', exportTasks);
-toggleCompletedBtn.addEventListener('click', toggleCompletedTasks);
-applyFiltersBtn.addEventListener('click', displayTasks);
-
-// Settings Listeners
-notificationToggle.addEventListener('change', () => {
-    notificationsEnabled = notificationToggle.checked;
-    localStorage.setItem('notificationsEnabled', notificationsEnabled.toString());
-    if (notificationsEnabled) {
-        requestNotificationPermission();
-        tasks.forEach(task => {
-            if (task.dueDate && !task.completed) {
-                scheduleNotification(task);
-            }
-        });
-    } else {
-         tasks.forEach(task => {
-              cancelNotification(task);
-         });
-    }
-});
-
-reminderTimeInput.addEventListener('change', () => {
-    reminderTime = parseInt(reminderTimeInput.value) || 30;
-    localStorage.setItem('reminderTime', reminderTime.toString());
-    if (notificationsEnabled) {
-        tasks.forEach(task => {
-           cancelNotification(task);
-            if (task.dueDate) {
-                scheduleNotification(task);
-            }
-        });
-    }
-});
-
-// --- Initial Setup ---
-displayTasks();
-requestNotificationPermission();
-
-// --- Offline/Online Detection ---
-window.addEventListener('offline', () => { contentSection.style.display = 'none'; offlineSection.style.display = 'block'; console.log('App is offline'); });
-window.addEventListener('online', () => { offlineSection.style.display = 'none'; contentSection.style.display = 'block'; console.log("app is online"); });
-if (!navigator.onLine) { contentSection.style.display = 'none'; offlineSection.style.display = 'block'; }
+                 
