@@ -60,10 +60,10 @@ closeMenuBtn.addEventListener('click', () => {
 
 moreOptionsBtn.addEventListener('click', () => moreOptionsMenu.classList.toggle('open'));
 
-// Settings Toggle
+// Settings Toggle (CORRECTED)
 settingsLink.addEventListener('click', (event) => {
-    event.preventDefault();
-    settingsOptions.classList.toggle('open');
+    event.preventDefault(); // Prevent default link behavior
+    settingsOptions.classList.toggle('open'); // Toggle the 'open' class
     mainMenu.classList.remove('open'); // Close the drawer
 });
 
@@ -250,7 +250,7 @@ function toggleTaskComplete(index) {
 }
 
 function editTask(event) {
-     event.stopPropagation();
+    event.stopPropagation();
     const index = parseInt(event.target.dataset.index); // Get index as number
     const li = event.target.closest('li'); // Find parent li
     const taskTextSpan = li.querySelector('.task-text');
@@ -278,11 +278,11 @@ function editTask(event) {
 }
 
 function clearAllTasks() {
-   if (confirm("Are you sure you want to clear all tasks?")) {
+     if (confirm("Are you sure you want to clear all tasks?")) {
         tasks = [];
         localStorage.removeItem('tasks');
         displayTasks();
-        mainMenu.classList.remove('open'); // Close menu
+        mainMenu.classList.remove('open'); // Close drawer
     }
 }
 
@@ -310,14 +310,15 @@ function importTasks() {
                         localStorage.setItem('tasks', JSON.stringify(tasks));
                         displayTasks();
                         alert('Tasks imported successfully!');
-                    }else{
-                        alert('Invalid file format. Please import a valid JSON file with text, completed, priority, and dueDate fields.');
+                    }
+                    else {
+                        alert('Invalid file format. Please import a valid JSON file with text, completed, priority, dueDate, recurrence, subtasks and notes fields.');
                     }
 
                 } catch (error) {
                     alert('Error importing tasks: ' + error.message);
                 }
-                 mainMenu.classList.remove('open');
+                 mainMenu.classList.remove('open'); // Close drawer
             };
             reader.readAsText(file);
         }
@@ -333,15 +334,16 @@ function exportTasks() {
     document.body.appendChild(downloadAnchorNode);
     downloadAnchorNode.click();
     downloadAnchorNode.remove();
-     mainMenu.classList.remove('open');
+    mainMenu.classList.remove('open'); // Close drawer
 }
 
 function toggleCompletedTasks() {
     showCompleted = !showCompleted;
     displayTasks();
     toggleCompletedBtn.textContent = showCompleted ? "Hide Completed" : "Show Completed";
-     mainMenu.classList.remove('open');
+    mainMenu.classList.remove('open'); // Close drawer
 }
+
 // --- Notification Functions ---
 
 function scheduleNotification(task) {
@@ -417,8 +419,8 @@ function requestNotificationPermission() {
         });
     }
 }
-// --- Subtask Functions ---
 
+// --- Subtask Functions ---
 function renderSubtasks(subtasks, taskIndex) {
     if (!subtasks) {
       return ''; // Return an empty string if there are no subtasks.
@@ -548,10 +550,11 @@ function cancelNotesEdit(event) {
 }
 
 // --- Theme Function ---
+
 function setTheme(themeName) {
-    document.body.className = themeName + '-theme';
+    document.body.className = themeName + '-theme'; // Apply the theme class to the body
     localStorage.setItem('theme', themeName);
-    currentTheme = themeName; // Keep track of the current theme
+    currentTheme = themeName; // Update currentTheme
 }
 
 // --- Event Listeners (Main) ---
@@ -569,29 +572,29 @@ notificationToggle.addEventListener('change', () => {
     notificationsEnabled = notificationToggle.checked;
     localStorage.setItem('notificationsEnabled', notificationsEnabled.toString());
     if (notificationsEnabled) {
-        requestNotificationPermission();
+        requestNotificationPermission(); // Request if enabled
         tasks.forEach(task => {
             if (task.dueDate && !task.completed) {
                 scheduleNotification(task);
             }
         });
     } else {
-        // Cancel all pending notifications
+        // Cancel all pending notifications if disabled
         tasks.forEach(task => {
-            cancelNotification(task);
+             cancelNotification(task); // Cancel existing
         });
     }
 });
 
 reminderTimeInput.addEventListener('change', () => {
-    reminderTime = parseInt(reminderTimeInput.value) || 30; // Ensure it's a number
+    reminderTime = parseInt(reminderTimeInput.value) || 30; // Parse int, default 30
     localStorage.setItem('reminderTime', reminderTime.toString());
     if (notificationsEnabled) {
-        // Reschedule notifications with new reminder time (if enabled)
+        // Reschedule all notifications with new time
         tasks.forEach(task => {
-            cancelNotification(task);  // Cancel existing
+           cancelNotification(task); // Cancel existing
             if (task.dueDate) {
-                scheduleNotification(task); // Reschedule
+                scheduleNotification(task);  // Reschedule
             }
         });
     }
@@ -613,9 +616,10 @@ function toggleSubtaskComplete(taskIndex, subtaskIndex) {
     displayTasks(); // Re-render
 }
 
+
 // --- Initial Setup ---
 displayTasks();
-requestNotificationPermission();
+requestNotificationPermission(); // Request permission on load
 
 // --- Offline/Online Detection ---
 window.addEventListener('offline', () => { contentSection.style.display = 'none'; offlineSection.style.display = 'block'; console.log('App is offline'); });
