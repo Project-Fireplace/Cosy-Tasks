@@ -17,12 +17,11 @@ body {
     display: flex;
     flex-direction: column; /* Default column layout (mobile) */
     min-height: 100vh;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Keep shadow on mobile*/
-    border-radius: 8px;  /* Keep rounded corners on mobile*/
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
     overflow: hidden;
-    position: relative; /* For absolute positioning of elements inside */
+    position: relative;
 }
-
 /* Larger Screens (Tablet/Desktop) */
 @media (min-width: 769px) {
     .app-container {
@@ -35,38 +34,37 @@ body {
     .side-drawer {
         position: relative; /* Part of the normal flow */
         width: 280px;
-        height: 100vh;
+        height: 100vh;  /* Full viewport height */
         transform: none; /* No transform needed */
         box-shadow: none; /* Remove mobile shadow */
         border-right: 1px solid rgba(0, 0, 0, 0.12);
-        z-index: 1; /*Corrected z-index*/
+        z-index: 1;
     }
 
     .content-wrapper {
         flex-grow: 1; /* Take up remaining space */
-        display: flex;/* Use flex*/
-        flex-direction: column;
+        display: flex;/* Use flex */
+        flex-direction: column; /* Stack header and main */
     }
-    header{
-        position: relative; /*Ensure header on top*/
-        width: 100%;
+     header{
+        position: relative;  /* Make sure header is above side-nav */
+        width: 100%; /* Take up remaining space */
     }
     main{
-      padding-bottom: 1rem;/*Remove extra padding*/
+      padding-bottom: 1rem; /*remove extra padding*/
     }
     .add-task-area {
-      position: static;/*Reset to default value*/
-      margin-top: 1rem;
-      max-width: 568px;
+        position: static; /* Reset to default value */
+        margin-top: 1rem; /* Add top margin */
+        max-width: 568px;
     }
-    #taskList li:last-child{
-       margin-bottom: 10px;/*Reset margin*/
-    }
+      #taskList li:last-child{
+       margin-bottom: 10px;/*reset margin*/
+     }
 }
 
-
 header {
-    background-color: #f4511e; /* Corrected Deep Orange */
+    background-color: #f4511e;
     color: white;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.26);
     z-index: 10;
@@ -111,7 +109,7 @@ header {
 
 .icon-button:focus {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(244, 81, 30, 0.5); /* Corrected focus ring */
+    box-shadow: 0 0 0 3px rgba(244, 81, 30, 0.5);
 }
 
 /* Side Drawer (Mobile) */
@@ -144,12 +142,11 @@ header {
     color: white;
     height: 56px;
 }
-
-.drawer-header h2 {
-    margin: 0;
+ .drawer-header h2{
+    margin: 0; /*remove default margin*/
     font-size: 1.25rem;
     font-weight: 500;
-}
+ }
 
 .menu-item {
     display: flex;
@@ -164,7 +161,7 @@ header {
 
 .menu-item i {
     margin-right: 1rem;
-    font-size: 1.25rem;
+     font-size: 1.25rem;
 }
 
 .menu-item:hover,
@@ -172,10 +169,11 @@ header {
     background-color: #f5f5f5;
     outline: none;
 }
+
 /* "More Options" Dropdown */
 .dropdown-menu {
     position: absolute;
-    top: 56px; /* Align with toolbar */
+    top: 56px;
     right: 16px;
     background-color: white;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.26);
@@ -202,30 +200,30 @@ main {
     display: flex;
     flex-direction: column;
 }
-/* Style for the main content section */
 #content {
   flex: 1;
   overflow-y: auto;
    margin-top: 1rem;
 }
+
+/* --- Add Task Area (FAB) --- */
 .add-task-area {
     position: fixed;
     bottom: 16px;
-    left: 0;      /*  Full width */
-    right: 0;     /*  Full width */
+    left: 0;
+    right: 0;
     display: flex;
     align-items: center;
-    padding: 0.5rem 1rem;   /* Consistent padding */
+    padding: 0.5rem 1rem;
     background-color: rgba(255, 255, 255, 0.9);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border-radius: 24px 24px 0 0; /* Rounded top corners only */
-    box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.2);  /* Shadow at the top */
+    border-radius: 24px 24px 0 0;
+    box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.2);
     z-index: 5;
     max-width: none; /* Remove max-width */
-    margin: 0; /*remove auto margin*/
+     margin: 0; /* Remove margin */
 }
-
 
 #taskInput {
     flex-grow: 1;
@@ -240,13 +238,12 @@ main {
 #taskInput:focus {
     outline: none;
 }
-
-#taskInput::placeholder{
-  color:#999
+#taskInput::placeholder {
+    color: #999;
 }
 
 #prioritySelect,
-#dueDateInput {
+#dueDateInput, #recurrenceSelect {  /* Include recurrenceSelect */
     padding: 10px;
     margin-right: 10px;
     border: 1px solid #ddd;
@@ -254,11 +251,24 @@ main {
     font-size: 0.9rem;
     background-color: rgba(255,255,255, 0.6);
     height: 40px;
+    -webkit-appearance: none; /* Remove default styling */
+    -moz-appearance: none;
+    appearance: none;
 }
+
+/* Custom dropdown arrow (optional, for consistent styling) */
+#prioritySelect, #recurrenceSelect{
+     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23757575'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.7rem center;
+    background-size: 16px;
+}
+
 #prioritySelect:focus,
-#dueDateInput:focus{
-  outline: none;
-   box-shadow: 0 0 0 2px rgba(244, 81, 30, 0.5);
+#dueDateInput:focus,
+#recurrenceSelect:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(244, 81, 30, 0.5);
 }
 
 .add-button {
@@ -276,7 +286,7 @@ main {
     justify-content: center;
     width: 48px;
     height: 48px;
-     margin-left: auto; /* Push button to the right */
+    margin-left: auto; /* Push button to the right */
 }
 
 .add-button:hover {
@@ -289,6 +299,7 @@ main {
     box-shadow: 0 0 0 3px rgba(255, 112, 67, 0.5);
 }
 
+/* --- Task List --- */
 #taskList {
     list-style: none;
     padding: 0;
@@ -296,9 +307,8 @@ main {
 
 #taskList li {
     display: flex;
-    align-items: center;
+    flex-direction: column; /* Stack task details vertically */
     padding: 12px;
-    border-bottom: 1px solid #ddd;
     background-color: rgba(255, 255, 255, 0.9);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
@@ -308,14 +318,23 @@ main {
     transition: transform 0.1s ease-in-out, box-shadow 0.1s ease-in-out;
 }
 
+
 #taskList li:last-child {
     border-bottom: none;
-    margin-bottom: 0px;
+     margin-bottom: 0px;
 }
 
 #taskList li:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.task-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 0.5rem; /* Space between main content and subtasks/notes */
 }
 
 .task-text {
@@ -324,6 +343,7 @@ main {
     word-break: break-word;
     font-size: 1rem;
 }
+
 .task-actions {
     display: flex;
     align-items: center;
@@ -375,6 +395,68 @@ main {
     box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.5);
 }
 
+/* --- Subtasks --- */
+.subtasks {
+    list-style: none; /* Remove bullets */
+    padding-left: 1rem; /* Indent subtasks */
+    margin-top: 0.5rem; /* Space between task and subtasks */
+}
+
+.subtasks li {
+    display: flex;
+    align-items: center;
+    padding: 6px 0; /* Smaller padding for subtasks */
+    font-size: 0.9rem; /* Slightly smaller font */
+    color: #666; /* Slightly lighter text */
+}
+.subtask-checkbox {
+    margin-right: 0.5rem;
+}
+
+/* --- Task Notes --- */
+.task-notes {
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    color: #666;
+    padding: 0.5rem;
+    border-top: 1px solid #ddd;
+    white-space: pre-wrap; /* Preserve line breaks and spacing */
+}
+.task-notes.editing {
+  display: none; /* Hide the notes while editing */
+}
+
+.edit-notes-textarea {
+    width: 100%;
+    box-sizing: border-box; /* Include padding and border */
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    resize: vertical; /* Allow vertical resizing */
+    margin-bottom: 0.5rem; /* Space between textarea and buttons */
+}
+
+.edit-notes-buttons {
+    display: flex;
+    justify-content: flex-end; /* Align buttons to the right */
+    gap: 0.5rem;
+}
+
+.save-notes-btn, .cancel-notes-btn{
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 4px 8px;
+    font-size: 0.8rem;
+    border-radius: 4px;
+     transition: background-color 0.2s;
+    cursor: pointer;
+}
+.cancel-notes-btn{
+    background-color: #f44336;
+}
+
 .offline-message {
     padding: 1rem;
     background-color: rgba(255, 255, 255, 0.9);
@@ -382,7 +464,8 @@ main {
     -webkit-backdrop-filter: blur(10px);
     border-radius: 4px;
 }
-/* Dark Theme */
+
+/* --- Dark Theme --- */
 body.dark-theme {
     background-color: #212121;
     color: #eee;
@@ -393,24 +476,27 @@ body.dark-theme .side-drawer {
     background-color: rgba(0, 0, 0, 0.7);
 }
 body.dark-theme #taskList li{
-  background-color: rgba(0, 0, 0, 0.5);
+   background-color: rgba(0, 0, 0, 0.5);
 }
 
 body.dark-theme .menu-item:hover {
     background-color: #424242;
     color: white;
 }
- body.dark-theme .menu-item {
+
+body.dark-theme .menu-item {
   color: white;
 }
 body.dark-theme .add-task-area{
-   background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0.7);
 }
 
+/* --- Priority Colors --- */
 .priority-high { color: #d32f2f; font-weight: 500; }
 .priority-medium { color: #ff9800; font-weight: 500; }
 .priority-low { color: #4caf50; font-weight: 500; }
 
+/* --- Edit Input --- */
 .edit-input {
     width: 70%;
     padding: 8px;
@@ -420,10 +506,10 @@ body.dark-theme .add-task-area{
     font-size: 1rem;
 }
 
-/* Filter Styles */
+/* --- Filter Styles --- */
 .filter-options {
     padding: 1rem;
-    display: none;  /*Initially hidden*/
+    display: none;
     flex-wrap: wrap;
     gap: 10px;
     align-items: center;
@@ -431,13 +517,13 @@ body.dark-theme .add-task-area{
     align-items: stretch;
 }
 
-.filter-options.open {
+ .filter-options.open {
     display: flex;
 }
 
 .filter-options label {
     margin-bottom: 0px;
-    width: 100%;
+     width: 100%;
     text-align: left;
 }
 
@@ -448,7 +534,7 @@ body.dark-theme .add-task-area{
 }
 
 .filter-button {
-    background-color: #f4511e; /* Match header */
+    background-color: #f4511e;
     border: none;
     color: white;
     padding: 8px 16px;
@@ -468,13 +554,13 @@ body.dark-theme .add-task-area{
 
 .filter-button:focus {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(244, 81, 30, 0.5); /* Orange focus ring */
+    box-shadow: 0 0 0 3px rgba(244, 81, 30, 0.5);
 }
 
-/* Settings Styles */
+/* --- Settings Styles --- */
 .settings-options {
     padding: 1rem;
-    display: none;  /*Initially hidden*/
+    display: none;
     flex-direction: column;
     align-items: stretch;
 }
@@ -517,31 +603,117 @@ body.dark-theme #dueDateFilter:focus,body.dark-theme #priorityFilter:focus, body
 body.dark-theme .settings-options{
     border-top: 1px solid #eee;
 }
- .due-date {
+
+.due-date {
     font-size: 0.85rem;
     color: #777;
     margin-left: 0.5rem;
- }
-   body.dark-theme .due-date{
-    color: #bbb;
-  }
+}
+body.dark-theme .due-date{
+  color: #bbb;
+}
 
-  .separator {
+/* --- Separator --- */
+ .separator {
     height: 1px;
     background-color: #ddd;
     margin: 1rem 0;
-  }
-  body.dark-theme .separator{
-    background-color: #eee;
-  }
+}
 
+body.dark-theme .separator{
+    background-color: #eee;
+}
+
+/* --- Search Bar --- */
+.search-bar {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    background-color: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px); /* For Safari */
+    border-radius: 24px; /* Consistent with Add Task Area */
+     box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); /*Material like shadows*/
+
+}
+
+.search-bar input {
+    flex-grow: 1;
+    border: none;
+    padding: 8px;
+    font-size: 1rem;
+    background: none;
+    color: inherit; /* Inherit text color from body */
+}
+.search-bar input::placeholder{
+    color:#999;
+}
+
+
+.search-icon {
+    color: #757575;
+    margin-left: 8px;
+     font-size: 1.25rem; /* Slightly larger icon */
+}
+body.dark-theme .search-bar{
+  background-color: rgba(0, 0, 0, 0.7);
+}
+body.dark-theme .search-bar input::placeholder{
+    color:#757575;
+}
+/* --- Theme Options --- */
+.theme-options {
+    display: none; /* Hidden by default */
+    padding: 1rem;
+    flex-direction: column; /* Stack buttons vertically */
+    gap: 0.5rem;
+}
+.theme-link{
+    margin-bottom: 0!important;
+}
+
+.theme-options.open {
+    display: flex; /* Show when open */
+}
+
+.theme-option {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 2px solid #ddd;
+    cursor: pointer;
+    transition: transform 0.1s ease-in-out, box-shadow 0.1s ease-in-out;
+}
+.theme-option:hover {
+    transform: scale(1.1); /* Slightly scale on hover */
+}
+
+.theme-option[data-theme="light"] {
+    background-color: #f2e9e4;  /* Light theme color */
+}
+ .theme-option[data-theme="dark"] {
+    background-color: #212121;  /* Dark theme color */
+}
+.theme-option[data-theme="fiery"] {
+    background-color: #f4511e;  /* Fiery theme color */
+}
+
+/* --- Animations ---*/
+/* General transition for interactive elements */
+.icon-button, .menu-item, #taskList li, .add-button, .deleteBtn, .editBtn, .filter-button, .theme-option, .dropdown-menu {
+    transition: all 0.2s ease-in-out; /* Smooth transitions */
+}
 
 /* Mobile-first styles (no media query needed) */
 /* ... (all your existing mobile styles) ... */
 
 /* Larger Screens (Tablet/Desktop) */
 @media (min-width: 769px) {
-   /* ... (all your existing large-screen styles) ... */
-}
+    /* ... (all your existing large-screen styles) ... */
+     /* Remove transition from add-task-area when on desktop */
+    .add-task-area {
+        transition: none; /* Remove transition for static positioning */
+    }
 
-</style>
+}
