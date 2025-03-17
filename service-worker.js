@@ -1,13 +1,14 @@
 // service-worker.js
 
-const CACHE_NAME = 'my-pwa-cache-v2'; //  Incremented version!
+const CACHE_NAME = 'my-pwa-cache-v3'; //  Incremented version!
 const urlsToCache = [
     '/',
     '/index.html',
+    '/style.css',  // Now caching style.css again
+    '/script.js', // Now caching script.js again
     '/manifest.json',
     '/images/icon-192.png',
     '/images/icon-512.png',
-    // Add any other *external* resources here (if you had any)
 ];
 
 self.addEventListener('install', event => {
@@ -55,7 +56,6 @@ self.addEventListener('fetch', event => {
                     })
                     .catch(error => {
                         console.error("Fetch failed:", error);
-                        // Optionally return a custom offline response (e.g., a cached offline.html)
                     });
             })
     );
