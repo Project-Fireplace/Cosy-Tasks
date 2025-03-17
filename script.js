@@ -63,6 +63,7 @@ moreOptionsBtn.addEventListener('click', () => moreOptionsMenu.classList.toggle(
 // Settings Toggle (CORRECTED)
 settingsLink.addEventListener('click', (event) => {
     event.preventDefault(); // Prevent default link behavior
+    stopPropagation();
     settingsOptions.classList.toggle('open'); // Toggle the 'open' class
     mainMenu.classList.remove('open'); // Close the drawer
 });
@@ -70,6 +71,7 @@ settingsLink.addEventListener('click', (event) => {
 //Filter toggle
 filterLink.addEventListener('click', (event) => {
     event.preventDefault();
+    stopPropagation();
     filterOptions.classList.toggle('open');
      mainMenu.classList.remove('open');
 });
@@ -77,6 +79,7 @@ filterLink.addEventListener('click', (event) => {
 // Theme Toggle
 themeLink.addEventListener('click', (event) => {
     event.preventDefault();
+    stopPropagation();
     themeOptions.classList.toggle('open');
      mainMenu.classList.remove('open'); // Close the drawer when opening theme options
 });
