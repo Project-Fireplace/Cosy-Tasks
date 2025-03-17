@@ -223,4 +223,152 @@ function importTasks() {
                 } catch (error) {
                     alert('Error importing tasks: ' + error.message);
                 }
-                 
+                                  mainMenu.classList.remove('open'); // Close drawer
+            };
+            reader.readAsText(file);
+        }
+    };
+    input.click();
+}
+
+function exportTasks() {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(tasks));
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", "tasks.json");
+    document.body.appendChild(downloadAnchorNode);
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+    mainMenu.classList.remove('open'); // Close drawer
+}
+
+function toggleCompletedTasks() {
+    showCompleted = !showCompleted;
+    displayTasks();
+    toggleCompletedBtn.textContent = showCompleted ? "Hide Completed" : "Show Completed";
+    mainMenu.classList.remove('open'); // Close drawer
+}
+
+// --- Notification Functions ---
+
+function scheduleNotification(task) {
+    if (!('Notification' in window)) {
+        console.warn("This browser does not support desktop notification");
+        return;
+    }
+
+    const now = new Date();
+    const dueDate = new Date(task.dueDate);
+    const reminderTimeMs = reminderTime * 60 * 1000;
+    const notificationTime = new Date(dueDate.getTime() - reminderTimeMs);
+
+    if (notificationTime <= now) {
+        console.log("Reminder time is in the past. Not scheduling notification.");
+        return;
+    }
+
+    const timeUntilNotification = notificationTime.getTime() - now.getTime();
+
+    const notificationTimeout = setTimeout(() => {
+          if(Notification.permission === "granted"){
+            showNotification(task);
+          }
+    }, timeUntilNotification);
+
+    task.notificationTimeout = notificationTimeout;
+}
+
+function showNotification(task) {
+    const notification = new Notification(`Task Reminder: ${task.text}`, {
+        body: `Your task "${task.text}" is due soon!`,
+        icon: 'images/icon-192.png',
+    });
+}
+
+function cancelNotification(task) {
+    if (task.notificationTimeout) {
+        clearTimeout(task.notificationTimeout);
+        delete task.notificationTimeout;
+    }
+}
+
+function requestNotificationPermission() {
+    if (!('Notification' in window)) {
+        alert("This browser does not support desktop notification");
+        return;
+    }
+
+    if(Notification.permission !== "granted" && Notification.permission !== "denied"){
+        Notification.requestPermission().then(permission => {
+            if (permission === "granted") {
+                console.log("Notification permission granted.");
+                notificationsEnabled = true;
+                localStorage.setItem('notificationsEnabled', 'true');
+                notificationToggle.checked = true;
+
+                tasks.forEach(task => {
+                    if (task.dueDate) {
+                        scheduleNotification(task);
+                    }
+                });
+
+            } else{
+                console.log("Notification permission denied.");
+                 notificationsEnabled = false;
+                localStorage.setItem('notificationsEnabled', 'false');
+                notificationToggle.checked = false;
+            }
+        });
+    }
+}
+
+// --- Event Listeners (Main) ---
+addTaskBtn.addEventListener('click', addTask);
+taskInput.addEventListener('keypress', (event) => { if (event.key === 'Enter') { addTask(); } });
+clearAllBtn.addEventListener('click', clearAllTasks);
+importBtn.addEventListener('click', importTasks);
+exportBtn.addEventListener('click', exportTasks);
+toggleCompletedBtn.addEventListener('click', toggleCompletedTasks);
+applyFiltersBtn.addEventListener('click', displayTasks);
+
+// Settings Listeners
+notificationToggle.addEventListener('change', () => {
+    notificationsEnabled = notificationToggle.checked;
+    localStorage.setItem('notificationsEnabled', notificationsEnabled.toString());
+    if (notificationsEnabled) {
+        requestNotificationPermission(); // Request permission if enabled
+        tasks.forEach(task => {
+            if (task.dueDate && !task.completed) {
+                scheduleNotification(task);
+            }
+        });
+    } else {
+        // Cancel all notifications if disabled
+        tasks.forEach(task => {
+             cancelNotification(task);
+        });
+    }
+});
+
+reminderTimeInput.addEventListener('change', () => {
+    reminderTime = parseInt(reminderTimeInput.value) || 30;
+    localStorage.setItem('reminderTime', reminderTime.toString());
+    if (notificationsEnabled) {
+        // Reschedule notifications with new reminder time
+        tasks.forEach(task => {
+            cancelNotification(task); // Cancel any existing
+            if (task.dueDate) {
+                scheduleNotification(task);  // Reschedule
+            }
+        });
+    }
+});
+
+// --- Initial Setup ---
+displayTasks();
+requestNotificationPermission(); // Request permission on load
+
+// --- Offline/Online Detection ---
+window.addEventListener('offline', () => { contentSection.style.display = 'none'; offlineSection.style.display = 'block'; console.log('App is offline'); });
+window.addEventListener('online', () => { offlineSection.style.display = 'none'; contentSection.style.display = 'block'; console.log("app is online"); });
+if (!navigator.onLine) { contentSection.style.display = 'none'; offlineSection.style.display = 'block'; }
