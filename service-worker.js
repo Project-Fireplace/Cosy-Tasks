@@ -1,6 +1,6 @@
 // service-worker.js
 
-const CACHE_NAME = 'my-pwa-cache-v5'; //  Incremented version! VERY IMPORTANT
+const CACHE_NAME = 'my-pwa-cache-v6'; //  Incremented version! VERY IMPORTANT
 const urlsToCache = [
     '/',
     '/index.html',
