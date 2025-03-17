@@ -11,6 +11,8 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <!-- Roboto Font -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- SortableJS (for drag and drop) -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <!-- CSS -->
     <link rel="stylesheet" href="style.css">
 </head>
@@ -24,7 +26,7 @@
             </div>
             <a href="#" class="menu-item"><i class="material-icons">home</i>Home</a>
             <a href="#" class="menu-item" id="clearAllBtn"><i class="material-icons">delete_forever</i>Clear All Tasks</a>
-            <a href="#" class="menu-item filter-link"><i class="material-icons">filter_list</i>Filters</a>
+           <a href="#" class="menu-item filter-link"><i class="material-icons">filter_list</i>Filters</a>
             <div class="filter-options">
                 <label for="priorityFilter">Priority:</label>
                 <select id="priorityFilter">
@@ -37,6 +39,14 @@
                 <input type="date" id="dueDateFilter">
                 <button id="applyFiltersBtn" class="filter-button">Apply</button>
             </div>
+             <div class="separator"></div>
+             <!--Theme-->
+            <a href="#" class="menu-item theme-link"><i class="material-icons">palette</i>Themes</a>
+                <div class="theme-options">
+                    <button class="theme-option" data-theme="light" aria-label="Light Theme"></button>
+                    <button class="theme-option" data-theme="dark" aria-label="Dark Theme"></button>
+                    <button class="theme-option" data-theme="fiery" aria-label="Fiery Theme"></button>
+                </div>
             <div class="separator"></div>
             <a href="#" class="menu-item settings-link"><i class="material-icons">settings</i>Settings</a>
             <div class="settings-options">
@@ -49,7 +59,7 @@
         </nav>
 
         <!-- Main Content Area -->
-        <div class="content-wrapper">  <!-- This wrapper is CRUCIAL -->
+        <div class="content-wrapper">
             <header>
                 <div class="toolbar">
                     <button id="menuBtn" class="icon-button" aria-label="Open Menu"><i class="material-icons">menu</i></button>
@@ -66,6 +76,10 @@
 
             <main>
                 <section id="content">
+                   <div class="search-bar">  <!-- Search Bar -->
+                        <input type="text" id="searchInput" placeholder="Search tasks..." aria-label="Search tasks">
+                        <i class="material-icons search-icon">search</i>
+                    </div>
                     <h2>Tasks</h2>
                     <ul id="taskList">
                         <!-- Tasks will be added here -->
@@ -79,22 +93,28 @@
                     </div>
                 </section>
             </main>
-        </div> <!-- End of content-wrapper -->
-    </div> <!-- end of app-container-->
-     <!-- Add Task Area (FAB) - Keep OUTSIDE the main content -->
-     <div class="add-task-area">
-        <input type="text" id="taskInput" placeholder="Add a task...">
-        <select id="prioritySelect">
-            <option value="high">High</option>
-            <option value="medium">Medium</option>
-            <option value="low">Low</option>
-        </select>
-        <input type="date" id="dueDateInput">
-        <button id="addTaskBtn" class="add-button" aria-label="Add Task">
-            <i class="material-icons">add</i>
-        </button>
+        </div>
+         <!-- Add Task Area (FAB) -->
+        <div class="add-task-area">
+            <input type="text" id="taskInput" placeholder="Add a task..." aria-label="Add a task">
+            <select id="prioritySelect" aria-label="Select task priority">
+                <option value="low">Low</option>  <!-- Default to Low -->
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+            </select>
+            <input type="date" id="dueDateInput" aria-label="Set due date">
+             <select id="recurrenceSelect" aria-label="Set task recurrence">
+                <option value="none">None</option>
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+                <option value="monthly">Monthly</option>
+                <option value="yearly">Yearly</option>
+            </select>
+            <button id="addTaskBtn" class="add-button" aria-label="Add Task">
+                <i class="material-icons">add</i>
+            </button>
+        </div>
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>
