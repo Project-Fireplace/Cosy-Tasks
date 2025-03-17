@@ -3,20 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cozy Tasks - To-Do List</title> <!-- More evocative title -->
+    <title>Cozy Tasks - To-Do List</title>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="images/icon-192.png">
-    <meta name="theme-color" content="#FF5722"> <!-- Deep Orange -->
+    <meta name="theme-color" content="#f4511e">  <!-- Corrected Deep Orange -->
     <!-- Material Icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <!-- Roboto Font -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <!--  CSS -->
+    <!-- CSS -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="light-theme">
     <div class="app-container">
-        <!-- Side Drawer (Always Present on Large Screens) -->
         <nav id="mainMenu" class="side-drawer">
             <div class="drawer-header">
                 <h2>Menu</h2>
@@ -24,7 +23,7 @@
             </div>
             <a href="#" class="menu-item"><i class="material-icons">home</i>Home</a>
             <a href="#" class="menu-item" id="clearAllBtn"><i class="material-icons">delete_forever</i>Clear All Tasks</a>
-            <a href="#" class="menu-item"><i class="material-icons">filter_list</i>Filters</a>
+            <a href="#" class="menu-item filter-link"><i class="material-icons">filter_list</i>Filters</a>
             <div class="filter-options">
                 <label for="priorityFilter">Priority:</label>
                 <select id="priorityFilter">
@@ -37,25 +36,24 @@
                 <input type="date" id="dueDateFilter">
                 <button id="applyFiltersBtn" class="filter-button">Apply</button>
             </div>
-             <div class="separator"></div>
+            <div class="separator"></div>
             <a href="#" class="menu-item settings-link"><i class="material-icons">settings</i>Settings</a>
             <div class="settings-options">
                 <label for="notificationToggle">
                     <input type="checkbox" id="notificationToggle"> Enable Notifications
                 </label>
-                <label for="reminderTime">Reminder Time (minutes before due):</label>
+                <label for="reminderTime">Reminder Time (minutes):</label>
                 <input type="number" id="reminderTime" min="1" value="30">
             </div>
         </nav>
-        <!-- Main Content Area -->
+
         <div class="content-wrapper">
             <header>
                 <div class="toolbar">
                     <button id="menuBtn" class="icon-button" aria-label="Open Menu"><i class="material-icons">menu</i></button>
-                    <h1>Cozy Tasks</h1>  <!-- Updated Title -->
+                    <h1>Cozy Tasks</h1>
                     <button id="moreOptionsBtn" class="icon-button" aria-label="More Options"><i class="material-icons">more_vert</i></button>
                 </div>
-                <!-- "More Options" Dropdown -->
                 <div id="moreOptionsMenu" class="dropdown-menu">
                     <a href="#" class="menu-item" id="importBtn"><i class="material-icons">file_upload</i>Import Tasks</a>
                     <a href="#" class="menu-item" id="exportBtn"><i class="material-icons">file_download</i>Export Tasks</a>
@@ -69,31 +67,30 @@
                     <ul id="taskList">
                         <!-- Tasks will be added here -->
                     </ul>
-                     <!-- Add Task Area (FAB) -->
-                    <div class="add-task-area">
-                        <input type="text" id="taskInput" placeholder="Add a task...">
-                        <select id="prioritySelect">
-                            <option value="high">High</option>
-                            <option value="medium">Medium</option>
-                            <option value="low">Low</option>
-                        </select>
-                        <input type="date" id="dueDateInput">
-                        <button id="addTaskBtn" class="add-button" aria-label="Add Task">
-                            <i class="material-icons">add</i>
-                        </button>
-                    </div>
                 </section>
 
                 <section id="offline-section" style="display: none;">
-                   <div class="offline-message">
+                    <div class="offline-message">
                         <h2>You are currently offline</h2>
-                       <p>Some features may be unavailable.</p>
-                   </div>
+                        <p>Some features may be unavailable.</p>
+                    </div>
                 </section>
             </main>
+
+            <div class="add-task-area">
+                <input type="text" id="taskInput" placeholder="Add a task...">
+                <select id="prioritySelect">
+                    <option value="high">High</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
+                </select>
+                <input type="date" id="dueDateInput">
+                <button id="addTaskBtn" class="add-button" aria-label="Add Task">
+                    <i class="material-icons">add</i>
+                </button>
+            </div>
         </div>
     </div>
-
-    <script src="script.js"></script> <!-- Link to external JS -->
+    <script src="script.js"></script>
 </body>
 </html>
