@@ -1,11 +1,11 @@
 // service-worker.js
 
-const CACHE_NAME = 'my-pwa-cache-v3'; //  Incremented version!
+const CACHE_NAME = 'my-pwa-cache-v4'; //  Incremented!
 const urlsToCache = [
     '/',
     '/index.html',
-    '/style.css',  // Now caching style.css again
-    '/script.js', // Now caching script.js again
+    '/style.css',
+    '/script.js',
     '/manifest.json',
     '/images/icon-192.png',
     '/images/icon-512.png',
