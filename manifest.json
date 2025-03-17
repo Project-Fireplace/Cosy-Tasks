@@ -4,7 +4,7 @@
   "start_url": "/",
   "display": "standalone",
   "background_color": "#f2e9e4",
-  "theme_color": "#FF5722",  // Deep Orange
+  "theme_color": "#f4511e",
   "description": "A beautiful and functional to-do list PWA with a fireplace theme.",
   "icons": [
     {
