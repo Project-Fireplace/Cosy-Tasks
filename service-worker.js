@@ -1,6 +1,6 @@
 // service-worker.js
 
-const CACHE_NAME = 'my-pwa-cache-v4'; //  Incremented!
+const CACHE_NAME = 'my-pwa-cache-v5'; //  Incremented version! VERY IMPORTANT
 const urlsToCache = [
     '/',
     '/index.html',
@@ -9,6 +9,10 @@ const urlsToCache = [
     '/manifest.json',
     '/images/icon-192.png',
     '/images/icon-512.png',
+    'https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js', // Cache SortableJS
+    'https://fonts.googleapis.com/icon?family=Material+Icons', // Cache Material Icons
+    'https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap', // Cache Roboto Font
+
 ];
 
 self.addEventListener('install', event => {
@@ -56,10 +60,13 @@ self.addEventListener('fetch', event => {
                     })
                     .catch(error => {
                         console.error("Fetch failed:", error);
+                        // You could add fallback content here for true offline capability
                     });
             })
     );
 });
+
+
 
 self.addEventListener('activate', event => {
     const cacheWhitelist = [CACHE_NAME];
