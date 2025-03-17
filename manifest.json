@@ -1,11 +1,11 @@
 {
-  "name": "My To-Do List PWA",
-  "short_name": "ToDoList",
+  "name": "Cozy Tasks - To-Do List",
+  "short_name": "Cozy Tasks",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#673ab7",
-  "description": "A feature-rich to-do list application built as a PWA.",
+  "background_color": "#f2e9e4",
+  "theme_color": "#FF5722",  // Deep Orange
+  "description": "A beautiful and functional to-do list PWA with a fireplace theme.",
   "icons": [
     {
       "src": "images/icon-192.png",
