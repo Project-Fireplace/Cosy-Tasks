@@ -6,7 +6,7 @@
     <title>Cozy Tasks - To-Do List</title>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="images/icon-192.png">
-    <meta name="theme-color" content="#f4511e">  <!-- Corrected Deep Orange -->
+    <meta name="theme-color" content="#f4511e">
     <!-- Material Icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <!-- Roboto Font -->
@@ -16,6 +16,7 @@
 </head>
 <body class="light-theme">
     <div class="app-container">
+        <!-- Side Drawer (Always Present on Large Screens) -->
         <nav id="mainMenu" class="side-drawer">
             <div class="drawer-header">
                 <h2>Menu</h2>
@@ -47,13 +48,15 @@
             </div>
         </nav>
 
-        <div class="content-wrapper">
+        <!-- Main Content Area -->
+        <div class="content-wrapper">  <!-- This wrapper is CRUCIAL -->
             <header>
                 <div class="toolbar">
                     <button id="menuBtn" class="icon-button" aria-label="Open Menu"><i class="material-icons">menu</i></button>
                     <h1>Cozy Tasks</h1>
                     <button id="moreOptionsBtn" class="icon-button" aria-label="More Options"><i class="material-icons">more_vert</i></button>
                 </div>
+                <!-- "More Options" Dropdown -->
                 <div id="moreOptionsMenu" class="dropdown-menu">
                     <a href="#" class="menu-item" id="importBtn"><i class="material-icons">file_upload</i>Import Tasks</a>
                     <a href="#" class="menu-item" id="exportBtn"><i class="material-icons">file_download</i>Export Tasks</a>
@@ -76,21 +79,22 @@
                     </div>
                 </section>
             </main>
-
-            <div class="add-task-area">
-                <input type="text" id="taskInput" placeholder="Add a task...">
-                <select id="prioritySelect">
-                    <option value="high">High</option>
-                    <option value="medium">Medium</option>
-                    <option value="low">Low</option>
-                </select>
-                <input type="date" id="dueDateInput">
-                <button id="addTaskBtn" class="add-button" aria-label="Add Task">
-                    <i class="material-icons">add</i>
-                </button>
-            </div>
-        </div>
+        </div> <!-- End of content-wrapper -->
+    </div> <!-- end of app-container-->
+     <!-- Add Task Area (FAB) - Keep OUTSIDE the main content -->
+     <div class="add-task-area">
+        <input type="text" id="taskInput" placeholder="Add a task...">
+        <select id="prioritySelect">
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+        </select>
+        <input type="date" id="dueDateInput">
+        <button id="addTaskBtn" class="add-button" aria-label="Add Task">
+            <i class="material-icons">add</i>
+        </button>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>
