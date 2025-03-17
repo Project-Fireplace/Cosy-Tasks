@@ -60,18 +60,16 @@ closeMenuBtn.addEventListener('click', () => {
 
 moreOptionsBtn.addEventListener('click', () => moreOptionsMenu.classList.toggle('open'));
 
-// Settings Toggle (CORRECTED)
+// Settings Toggle
 settingsLink.addEventListener('click', (event) => {
-    event.preventDefault(); // Prevent default link behavior
-    stopPropagation();
-    settingsOptions.classList.toggle('open'); // Toggle the 'open' class
+    event.preventDefault();
+    settingsOptions.classList.toggle('open');
     mainMenu.classList.remove('open'); // Close the drawer
 });
 
 //Filter toggle
 filterLink.addEventListener('click', (event) => {
     event.preventDefault();
-    stopPropagation();
     filterOptions.classList.toggle('open');
      mainMenu.classList.remove('open');
 });
@@ -79,7 +77,6 @@ filterLink.addEventListener('click', (event) => {
 // Theme Toggle
 themeLink.addEventListener('click', (event) => {
     event.preventDefault();
-    stopPropagation();
     themeOptions.classList.toggle('open');
      mainMenu.classList.remove('open'); // Close the drawer when opening theme options
 });
@@ -371,8 +368,7 @@ function scheduleNotification(task) {
    const notificationTimeout = setTimeout(() => {
         if(Notification.permission === "granted"){
             showNotification(task);
-        }
-
+          }
     }, timeUntilNotification);
 
     // Store the timeout ID so we can cancel it later if needed
@@ -551,7 +547,6 @@ function cancelNotesEdit(event) {
     }
     taskLi.querySelector('.edit-notes-form').style.display = 'none'; // Hide form
 }
-
 // --- Theme Function ---
 
 function setTheme(themeName) {
@@ -559,6 +554,7 @@ function setTheme(themeName) {
     localStorage.setItem('theme', themeName);
     currentTheme = themeName; // Update currentTheme
 }
+
 
 // --- Event Listeners (Main) ---
 addTaskBtn.addEventListener('click', addTask);
