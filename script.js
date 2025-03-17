@@ -88,11 +88,14 @@ let showCompleted = true;
 let currentTheme = localStorage.getItem('theme') || 'light';
 document.body.className = currentTheme;
 
+// Load settings and update UI *immediately*
 let notificationsEnabled = localStorage.getItem('notificationsEnabled') === 'true';
 let reminderTime = parseInt(localStorage.getItem('reminderTime')) || 30;
 
+// *** IMPORTANT: Update the UI to reflect the loaded settings ***
 notificationToggle.checked = notificationsEnabled;
 reminderTimeInput.value = reminderTime;
+
 
 // --- Task Functions ---
 
@@ -152,12 +155,11 @@ function addTask() {
 function deleteTask(event) {
     event.stopPropagation();
     const index = event.target.dataset.index;
-     cancelNotification(tasks[index]);
+    cancelNotification(tasks[index]);
     tasks.splice(index, 1);
     localStorage.setItem('tasks', JSON.stringify(tasks));
     displayTasks();
 }
-
 function toggleTaskComplete(index) {
     tasks[index].completed = !tasks[index].completed;
     localStorage.setItem('tasks', JSON.stringify(tasks));
@@ -223,7 +225,7 @@ function importTasks() {
                 } catch (error) {
                     alert('Error importing tasks: ' + error.message);
                 }
-                                  mainMenu.classList.remove('open'); // Close drawer
+                 mainMenu.classList.remove('open'); // Close drawer
             };
             reader.readAsText(file);
         }
@@ -270,7 +272,7 @@ function scheduleNotification(task) {
     const timeUntilNotification = notificationTime.getTime() - now.getTime();
 
     const notificationTimeout = setTimeout(() => {
-          if(Notification.permission === "granted"){
+        if(Notification.permission === "granted"){
             showNotification(task);
           }
     }, timeUntilNotification);
@@ -298,13 +300,13 @@ function requestNotificationPermission() {
         return;
     }
 
-    if(Notification.permission !== "granted" && Notification.permission !== "denied"){
+     if(Notification.permission !== "granted" && Notification.permission !== "denied"){
         Notification.requestPermission().then(permission => {
             if (permission === "granted") {
                 console.log("Notification permission granted.");
                 notificationsEnabled = true;
                 localStorage.setItem('notificationsEnabled', 'true');
-                notificationToggle.checked = true;
+                notificationToggle.checked = true; // Keep checkbox in sync
 
                 tasks.forEach(task => {
                     if (task.dueDate) {
@@ -314,9 +316,9 @@ function requestNotificationPermission() {
 
             } else{
                 console.log("Notification permission denied.");
-                 notificationsEnabled = false;
+                notificationsEnabled = false;
                 localStorage.setItem('notificationsEnabled', 'false');
-                notificationToggle.checked = false;
+                notificationToggle.checked = false; // Keep checkbox in sync
             }
         });
     }
@@ -331,19 +333,18 @@ exportBtn.addEventListener('click', exportTasks);
 toggleCompletedBtn.addEventListener('click', toggleCompletedTasks);
 applyFiltersBtn.addEventListener('click', displayTasks);
 
-// Settings Listeners
+// *** Settings Listeners (Corrected) ***
 notificationToggle.addEventListener('change', () => {
     notificationsEnabled = notificationToggle.checked;
-    localStorage.setItem('notificationsEnabled', notificationsEnabled.toString());
+    localStorage.setItem('notificationsEnabled', notificationsEnabled.toString()); // Save the setting
     if (notificationsEnabled) {
-        requestNotificationPermission(); // Request permission if enabled
+        requestNotificationPermission();
         tasks.forEach(task => {
             if (task.dueDate && !task.completed) {
                 scheduleNotification(task);
             }
         });
     } else {
-        // Cancel all notifications if disabled
         tasks.forEach(task => {
              cancelNotification(task);
         });
@@ -351,14 +352,13 @@ notificationToggle.addEventListener('change', () => {
 });
 
 reminderTimeInput.addEventListener('change', () => {
-    reminderTime = parseInt(reminderTimeInput.value) || 30;
-    localStorage.setItem('reminderTime', reminderTime.toString());
+    reminderTime = parseInt(reminderTimeInput.value) || 30; // Parse and ensure a number
+    localStorage.setItem('reminderTime', reminderTime.toString()); // Save the setting
     if (notificationsEnabled) {
-        // Reschedule notifications with new reminder time
         tasks.forEach(task => {
-            cancelNotification(task); // Cancel any existing
+            cancelNotification(task);
             if (task.dueDate) {
-                scheduleNotification(task);  // Reschedule
+                scheduleNotification(task);
             }
         });
     }
