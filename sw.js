@@ -1,9 +1,9 @@
-const CACHE_NAME = 'cosy-tasks-v8';
+const CACHE_NAME = 'cosy-tasks-v10';
 const urlsToCache = [
     '/',
     '/index.html',
-    '/style.css',
-    '/script.js',
+    '/css/style.css',
+    '/js/app.js',
     '/manifest.json',
     '/images/icon-96x96.png', // Add all your icon sizes
     '/images/icon-192x192.png',
