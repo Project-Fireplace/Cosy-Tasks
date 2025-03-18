@@ -1,23 +1,22 @@
-const CACHE_NAME = 'cosy-tasks-v1';
+const CACHE_NAME = 'cosy-tasks-v8';
 const urlsToCache = [
     '/',
     '/index.html',
-    '/css/style.css',
-    '/js/app.js',
-    '/js/data.js',
-    '/js/settings.js',
-    '/js/lib/idb.js',
-  '/js/lib/notifications.js',
-    '/js/components/TaskList.js',
-    '/js/components/TaskItem.js',
-    '/css/utilities.css',
-    '/css/components/task-list.css',
-    '/css/components/task-item.css',
-    '/css/components/toolbar.css'
-
-    // Add other assets to cache
+    '/style.css',
+    '/script.js',
+    '/manifest.json',
+    '/images/icon-96x96.png', // Add all your icon sizes
+    '/images/icon-192x192.png',
+    '/images/icon-512x512.png',
+	// Add any other assets (fonts, images, etc.) you want to cache
+	//Example: '/fonts/Roboto.woff2',
+    'https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Open+Sans:wght@400;600&display=swap', //Caching google fonts
+    'https://fonts.gstatic.com/s/roboto/v29/KFOmCnqEu92Fr1Me5g.woff2',
+    'https://fonts.gstatic.com/s/opensans/v28/memvYaGs126MiZpBA-UvWbX2vVnXBbObj2OVTSumu0SC55K5gw.woff2',
+    'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200'
 ];
 
+// --- Install Event ---
 self.addEventListener('install', event => {
     event.waitUntil(
         caches.open(CACHE_NAME)
@@ -28,87 +27,150 @@ self.addEventListener('install', event => {
     );
 });
 
+// --- Activate Event ---
+self.addEventListener('activate', event => {
+    event.waitUntil(
+        caches.keys().then(cacheNames => {
+            return Promise.all(
+                cacheNames.filter(cacheName => {
+                    return cacheName.startsWith('cosy-tasks-') && cacheName !== CACHE_NAME;
+                }).map(cacheName => {
+                    return caches.delete(cacheName);
+                })
+            );
+        })
+    );
+});
+
+// --- Fetch Event (Cache-First Strategy) ---
 self.addEventListener('fetch', event => {
     event.respondWith(
         caches.match(event.request)
             .then(response => {
+                // Cache hit - return response
                 if (response) {
-                    return response; // Return from cache
+                    return response;
                 }
-                return fetch(event.request); // Fetch from network
+
+                // IMPORTANT: Clone the request. A request is a stream and
+                // can only be consumed once. Since we are consuming this
+                // once by cache and once by the browser for fetch, we need
+                // to clone the response.
+                const fetchRequest = event.request.clone();
+
+                return fetch(fetchRequest).then(
+                    response => {
+                        // Check if we received a valid response
+                        if (!response || response.status !== 200 || response.type !== 'basic') {
+                            return response;
+                        }
+
+                        // IMPORTANT: Clone the response. A response is a stream
+                        // and because we want the browser to consume the response
+                        // as well as the cache consuming the response, we need
+                        // to clone it so we have two streams.
+                        const responseToCache = response.clone();
+
+                        caches.open(CACHE_NAME)
+                            .then(cache => {
+                                cache.put(event.request, responseToCache);
+                            });
+
+                        return response;
+                    }
+                );
             })
     );
 });
 
-self.addEventListener('activate', event => {
-  const cacheWhitelist = [CACHE_NAME]; // List of caches to keep
-
-  event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheWhitelist.indexOf(cacheName) === -1) {
-            // Delete old caches
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
-  );
-});
-
+// --- Push Notification Event (Basic Example) ---
 self.addEventListener('push', event => {
-  const data = event.data.json();
-  const options = {
-    body: data.body,
-    icon: data.icon || 'assets/icons/icon-192x192.png', // Default icon
-    badge: data.badge || 'assets/icons/badge.png', // Badge for notification
-    vibrate: data.vibrate || [200, 100, 200], // Vibration pattern
-    data: data.data || {}, // Pass custom data to notification
-    actions: data.actions || [  // Notification actions
-      { action: 'complete', title: 'Complete' },
-      { action: 'snooze', title: 'Snooze' }
-    ]
-  };
+    const title = 'Cosy Tasks'; // Or get title from event.data
+    const options = {
+        body: 'You have a new task!', // Or get body from event.data
+        icon: 'images/icon-96x96.png',
+        // ... other options
+    };
 
-    event.waitUntil(
-        self.registration.showNotification(data.title, options)
-    );
+    event.waitUntil(self.registration.showNotification(title, options));
 });
 
-self.addEventListener('notificationclick', event => {
-  event.notification.close();
-  const action = event.action;
-  const taskData = event.notification.data;
+self.addEventListener('notificationclick', (event) => {
+	const notification = event.notification;
+    const action = event.action;
+    const data = notification.data;
 
-  if (action === 'complete') {
-    // Handle task completion (update IndexedDB, etc.)
-    console.log('Task completed from notification', taskData);
-    //You'd need to communicate with the main app here;
-    //One common way is using postMessage to the client.
-     clients.matchAll().then(clients => {
-        if (clients && clients.length) {
-          clients[0].postMessage({
-            type: 'TASK_COMPLETED',
-            taskId: taskData.taskId
-          });
-        }
-      });
+	event.waitUntil(
+		self.clients.matchAll().then(clis => {
+			const client = clis.find(c => {
+				return c.visibilityState === 'visible';
+			});
+            // Send a message to the client
+			const message = {
+				type: 'notificationclick', //consistent naming
+				notification: {
+                    title: notification.title,
+                    body: notification.body,
+                    data: data
+                }, //serialize
+				action: action
+			};
+
+			if(client){
+				client.postMessage(message);
+			} else{
+				// No visible client, so open a new window.
+                // But, opening the window here doesn't guarantee it'll be ready *before* the main script
+                // tries to show the task details. It's racy.
+                if (self.clients.openWindow) { //check if openWindow is supported
+                   self.clients.openWindow('/'); // Open root. Let main script handle showing details
+                }
+			}
 
 
-  } else if (action === 'snooze') {
-    // Handle snoozing (reschedule notification)
-        console.log('Task snoozed from notification', taskData);
-        clients.matchAll().then(clients => {
-        if (clients && clients.length) {
-          clients[0].postMessage({
-            type: 'TASK_SNOOZED',
-            taskId: taskData.taskId
-          });
-        }
-      });
-  } else {
-    // Default action: open the app
-        clients.openWindow('/'); //Opens main app
-  }
+		})
+	);
 });
+
+self.addEventListener('notificationclose', (event) => {
+	const notification = event.notification;
+    const data = notification.data;
+
+	event.waitUntil(
+		self.clients.matchAll().then(clis => {
+			const client = clis.find(c => {
+				return c.visibilityState === 'visible';
+			});
+			// Send a message to the client
+			const message = {
+				type: 'notificationclose', //consistent naming
+				notification: {
+                    title: notification.title,
+                    body: notification.body,
+                    data: data
+                }, //serialize
+			};
+
+			if(client)
+				client.postMessage(message);
+
+			//Don't open window
+		})
+	);
+});
+
+// --- Background Sync (Example) ---
+self.addEventListener('sync', event => {
+    if (event.tag === 'sync-new-tasks') {
+       // event.waitUntil(syncTasks()); // Implement syncTasks function
+    }
+});
+
+// Example syncTasks function (would need to interact with a server)
+/*
+async function syncTasks() {
+    // Get tasks from IndexedDB (or wherever you store them for syncing)
+    // Send tasks to the server
+    // Update IndexedDB on success
+}
+*/
