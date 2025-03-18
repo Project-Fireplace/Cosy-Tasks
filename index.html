@@ -26,9 +26,27 @@
                 <button id="settings-toggle" aria-label="Open settings"><span class="material-symbols-outlined">
                     settings
                     </span></button>
+
+                <!-- Search bar -->
+                <input type="text" id="search-input" placeholder="Search tasks...">
             </div>
 			<!-- Add more toolbar buttons here for search, filter, etc. -->
 			<div class="toolbar-bottom">
+             <button id="sort-button" aria-label="Sort Tasks"><span class="material-symbols-outlined">
+sort
+</span></button>
+
+             <button id="focus-mode-toggle" aria-label="Focus mode">
+                <span class="material-symbols-outlined">
+                    center_focus_strong
+                </span>
+            </button>
+
+            <button id="dnd-mode-toggle" aria-label="Do Not Disturb mode">
+            <span class="material-symbols-outlined">
+                do_not_disturb_on
+            </span>
+        </button>
 				<button id="add-task" class="fab" aria-label="Add task"><span class="material-symbols-outlined">
 					add
 					</span></button>
@@ -47,6 +65,9 @@
                     <li><a href="#" data-filter="upcoming"><span class="material-symbols-outlined">
 						event_upcoming
 						</span>Upcoming</a></li>
+                    <li><a href="#" data-filter="archived"><span class="material-symbols-outlined">
+                        archive
+                    </span>Archived</a></li>
 					<!-- Add more filters here -->
 					<hr>
                     <li><a href="#" data-filter="profiles"><span class="material-symbols-outlined">
@@ -66,19 +87,60 @@
 				<h2 id="task-details-title"></h2>
                 <div id="task-details-content"></div>
                 <button id="edit-task" class="button">Edit</button>
+                <button id="archive-task" class="button">Archive</button> <!-- Archive button -->
                 <button id="delete-task" class="button danger">Delete</button>
                 <button id="close-details" class="button">Close</button>
             </section>
-			
-			
+
 		 <div id="add-task-overlay" class="overlay hidden">
                 <div class="overlay-content">
                     <h2>Add New Task</h2>
                     <input type="text" id="new-task-title" placeholder="Task Title" required>
                     <textarea id="new-task-description" placeholder="Description"></textarea>
-					<!-- Add more fields like due date, priority, location, etc. -->
+
                     <label for="new-task-due-date">Due Date:</label>
                     <input type="date" id="new-task-due-date">
+
+                    <label for="new-task-due-time">Due Time:</label>
+                    <input type="time" id="new-task-due-time">
+
+                    <label for="new-task-location">Location:</label>
+                    <input type="text" id="new-task-location" placeholder="e.g., Home, Office">
+
+                    <label for="new-task-priority">Priority:</label>
+                    <select id="new-task-priority">
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                    </select>
+
+                     <label for="new-task-recurrence">Recurrence:</label>
+                    <select id="new-task-recurrence">
+                        <option value="none">None</option>
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                    </select>
+
+                    <label for="new-task-reminder">Reminder:</label>
+                    <input type="datetime-local" id="new-task-reminder">
+
+                     <label for="new-task-notes">Notes:</label>
+                    <textarea id="new-task-notes" placeholder="Additional notes..."></textarea>
+
+                     <label>Subtasks:</label>
+                    <div id="new-task-subtasks-container">
+                        <button type="button" id="add-new-subtask">Add Subtask</button>
+                        <!-- Subtasks will be added here -->
+                    </div>
+
+                     <label>Attachments (filenames):</label>
+                    <div id="new-task-attachments-container">
+                        <input type="text" class="new-task-attachment" placeholder="attachment.pdf">
+                        <button type="button" class="add-new-attachment">Add Attachment</button>
+                           <!-- More attachments can be added here -->
+                    </div>
+
 					<label for="color-tag-select"><span class="material-symbols-outlined">
 						label
 						</span>Color Tag:</label>
@@ -104,6 +166,46 @@
 					<!-- Add more fields like due date, priority, location, etc. -->
                     <label for="edit-task-due-date">Due Date:</label>
                     <input type="date" id="edit-task-due-date">
+
+                     <label for="edit-task-due-time">Due Time:</label>
+                    <input type="time" id="edit-task-due-time">
+
+                    <label for="edit-task-location">Location:</label>
+                    <input type="text" id="edit-task-location" placeholder="e.g., Home, Office">
+
+                     <label for="edit-task-priority">Priority:</label>
+                    <select id="edit-task-priority">
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                    </select>
+
+                    <label for="edit-task-recurrence">Recurrence:</label>
+                    <select id="edit-task-recurrence">
+                        <option value="none">None</option>
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                    </select>
+
+                     <label for="edit-task-reminder">Reminder:</label>
+                    <input type="datetime-local" id="edit-task-reminder">
+
+                    <label for="edit-task-notes">Notes:</label>
+                    <textarea id="edit-task-notes" placeholder="Additional notes..."></textarea>
+
+                    <label>Subtasks:</label>
+                    <div id="edit-task-subtasks-container">
+                        <button type="button" id="add-edit-subtask">Add Subtask</button>
+                        <!-- Subtasks will be added here -->
+                    </div>
+
+                    <label>Attachments (filenames):</label>
+                    <div id="edit-task-attachments-container">
+                        <input type="text" class="edit-task-attachment" placeholder="attachment.pdf">
+                        <button type="button" class="add-edit-attachment">Add Attachment</button>
+                           <!-- More attachments can be added here -->
+                    </div>
                     <label for="edit-color-tag-select"><span class="material-symbols-outlined">
 						label
 						</span>Color Tag:</label>
@@ -126,10 +228,24 @@
                 <h2>Settings</h2>
                 <label for="theme-select">Theme:</label>
                 <select id="theme-select">
+                    <option value="fireplace">Fireplace (Default)</option>
                     <option value="light">Light</option>
                     <option value="dark">Dark</option>
-                    <option value="fireplace">Fireplace (Default)</option>
+                    <option value="forest">Forest</option>
+                    <option value="ocean">Ocean</option>
+                    <option value="nightsky">Night Sky</option>
+                    <option value="desert">Desert</option>
+                    <option value="monochrome">Monochrome</option>
+                    <option value="pastel">Pastel</option>
                 </select>
+
+                 <label for="toolbar-customization">Toolbar:</label>
+                    <div id="toolbar-customization">
+                        <div><input type="checkbox" id="show-search" checked><label for="show-search"> Show Search</label></div>
+                         <div><input type="checkbox" id="show-sort" checked><label for="show-sort"> Show Sort</label></div>
+                        <div><input type="checkbox" id="show-focus-mode" checked><label for="show-focus-mode"> Show Focus Mode</label></div>
+                        <div><input type="checkbox" id="show-dnd-mode" checked><label for="show-dnd-mode"> Show DND Mode</label></div>
+                    </div>
 
                 <label for="rtl-toggle">Right-to-Left Layout:</label>
                 <input type="checkbox" id="rtl-toggle">
