@@ -1,110 +1,403 @@
-/* Root variables for theming */
-:root {
-    --primary-color: #e67e22; /* Orange */
-    --secondary-color: #f39c12;
-    --background-color: #f2f2f2;
-    --text-color: #333;
-    --accent-color: #d35400; /* Darker orange for accents */
-    --font-family: 'Open Sans', sans-serif; /* Example font */
-    /* Fireplace Theme Colors */
-  --fireplace-bg: #4a2f23; /* Dark brown */
-  --fireplace-accent: #e67e22; /* Orange (flame color) */
-  --fireplace-text: #f2f2f2; /* Light text for contrast */
-    --fire-glow: 0 0 20px 5px rgba(255, 100, 0, 0.6);
-    --toolbar-height : 56px;
+/* style.css */
+
+/* --- General Setup & Reset --- */
+
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
 body {
-    font-family: var(--font-family);
-    background-color: var(--background-color);
-    color: var(--text-color);
-    margin: 0;
-    padding: 0;
-    /* Fireplace Inspired Background */
-    background: var(--fireplace-bg);
-     /* Add a subtle flame-like animation using CSS gradients and keyframes */
-    background: linear-gradient(to bottom, #4a2f23, #6b4226, #4a2f23); /* Dark brown gradient */
-    animation: flameFlicker 5s ease-in-out infinite;
+    font-family: 'Roboto', sans-serif; /* Default font */
+    background-color: #f5f0e1; /* Light beige, for a warm feel */
+    color: #333;
+    line-height: 1.6;
+    transition: background-color 0.3s ease, color 0.3s ease; /* Smooth transitions */
+    overflow-x: hidden; /* Prevent horizontal scroll */
 }
-/* Basic Component Styling */
-.task-list {
+
+/* --- App Container --- */
+
+.app-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* --- Header --- */
+
+.app-header {
+    background-color: #e67e22; /* Orange, fireplace theme */
+    color: #fff;
     padding: 1rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    z-index: 10; /* Ensure header stays on top */
+	position: sticky;
+	top: 0;
+}
+
+.toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.toolbar-bottom {
+	display: flex;
+    justify-content: center;
+}
+
+.app-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+/*Buttons style*/
+.button, button{
+	  background-color: #d35400; /* Darker orange */
+    color: #fff;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    font-size: 1rem;
+	 margin: 0.35rem;
+}
+.button:hover, button:hover, .fab:hover{
+	background-color: #b14300;
+	transform: scale(1.05);
+}
+.button:active, button:active, .fab:active {
+    transform: scale(0.95); /* Slight shrink on click */
+}
+/* --- Sidebar --- */
+
+.sidebar {
+    width: 250px;
+    background-color: #f8f8f8;
+    border-right: 1px solid #ddd;
+    padding: 1rem;
+    transition: transform 0.3s ease; /* Smooth slide-in */
+    position: fixed;
+    top: 68px; /* Height of the header + a bit of margin */
+    left: 0;
+    height: 100%;
+    z-index: 5;
+	overflow-y: auto;
+}
+
+.sidebar.hidden {
+    transform: translateX(-100%);
+}
+
+.sidebar nav ul {
+    list-style: none;
+}
+
+.sidebar nav ul li a {
+    display: block;
+    padding: 0.75rem 1rem;
+    color: #555;
+    text-decoration: none;
+	display: flex;
+	align-items: center;
+}
+.sidebar nav ul li a .material-symbols-outlined{
+	margin-right: 0.4rem;
+}
+.sidebar nav ul li a:hover {
+    background-color: #eee;
+}
+
+/* --- Main Content --- */
+
+.main-content {
+    flex: 1;
+    padding: 1rem;
+    margin-left: 0; /* Initially, no sidebar space */
+    transition: margin-left 0.3s ease;
+}
+
+.main-content.sidebar-open {
+    margin-left: 250px; /* Adjust when sidebar is open */
+}
+
+/* --- Task List --- */
+
+#task-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Responsive columns */
+    gap: 1rem;
 }
 
 .task-item {
-    background-color: white;
-    border: 1px solid #ddd;
-    padding: 1rem;
-    margin-bottom: 0.5rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    background-color: #fff;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transitions */
-
+    padding: 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+	position: relative;
+	overflow: hidden; /*For animation and color tag*/
 }
- .task-item:hover {
-        transform: translateY(-2px); /* Slight lift on hover */
-        box-shadow: var(--fire-glow); /* Fire glow effect on hover */
-    }
 
+.task-item:hover {
+    transform: translateY(-5px); /* Lift on hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
 
-.toolbar {
-    background-color: var(--primary-color);
-    color: white;
-    padding: 0.5rem;
+/*Color Tag*/
+.task-item::before{
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 10px;
+	transition: all 0.5s ease;
+}
+
+.task-item[data-color-tag="red"]::before{
+	background-color: #e74c3c;
+}
+.task-item[data-color-tag="orange"]::before{
+	background-color: #e67e22;
+}
+.task-item[data-color-tag="yellow"]::before{
+	background-color: #f1c40f;
+}
+.task-item[data-color-tag="green"]::before{
+	background-color: #2ecc71;
+}
+.task-item[data-color-tag="blue"]::before{
+	background-color: #3498db;
+}
+.task-item[data-color-tag="purple"]::before{
+	background-color: #9b59b6;
+}
+/* --- Task Details --- */
+#task-details{
+	border-radius: 8px;
+	border: 1px solid #ddd;
+}
+#task-details.hidden {
+    display: none;
+}
+#task-details-content{
+	padding: 1rem;
+}
+
+/* --- Overlays --- */
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent backdrop */
+    z-index: 20;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-  height: var(--toolbar-height);
+    justify-content: center;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
-/* Button Styling */
-button {
-    background-color: var(--accent-color);
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    cursor: pointer;
+.overlay.hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.overlay-content {
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    max-width: 80%;
+	width: 600px;
+    transform: translateY(-20px); /* Start slightly above */
+    transition: transform 0.3s ease;
+}
+
+.overlay.visible .overlay-content {
+    transform: translateY(0); /* Slide down on show */
+}
+/*Select*/
+select{
+	margin: 0.5rem;
+	padding: 0.4rem;
+	border-radius: 4px;
+	border: 1px solid #ccc;
+}
+
+/* --- Form Elements --- */
+
+input[type="text"],
+textarea, select {
+    width: 100%;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+    border: 1px solid #ccc;
     border-radius: 4px;
-      transition: background-color 0.3s ease;
+    font-size: 1rem;
 }
 
-button:hover {
-    background-color: var(--secondary-color);
+textarea {
+    resize: vertical; /* Allow vertical resizing */
 }
 
-.color-tag {
-    display: inline-block;
-    width: 15px;
-    height: 15px;
+/* --- Floating Action Button (FAB) --- */
+
+.fab {
+    background-color: #d35400; /* Darker orange */
+    color: #fff;
+    border: none;
     border-radius: 50%;
-    margin-right: 5px;
-}
-.tag {
-  margin-right: 10px;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  display: inline-block;
-  cursor: pointer;
-  box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
-}
-.red { background-color: red; }
-.blue { background-color: blue; }
-.green { background-color: green; }
-.orange{background-color: orange;}
-.toolbar-center{
-    font-weight: 700;
-    font-size: larger;
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 15;
 }
 
-@keyframes flameFlicker {
-    0%, 100% {
-        background-position: 0% 50%;
+
+
+/* --- Footer --- */
+
+.app-footer {
+    text-align: center;
+    padding: 1rem;
+    background-color: #eee;
+    margin-top: auto; /* Push footer to the bottom */
+}
+
+/* --- Dark Theme --- */
+body.dark-theme {
+    background-color: #333;
+    color: #f0f0f0;
+}
+
+body.dark-theme .app-header{
+	background-color: #d35400;
+}
+
+body.dark-theme .sidebar {
+    background-color: #444;
+    border-right: 1px solid #555;
+}
+
+body.dark-theme .sidebar nav ul li a {
+    color: #ddd;
+}
+
+body.dark-theme .sidebar nav ul li a:hover {
+	background-color: #666;
+}
+
+body.dark-theme .task-item {
+    background-color: #555;
+    color: #fff;
+    box-shadow: 0 1px 3px rgba(255, 255, 255, 0.1);
+}
+body.dark-theme #task-details{
+	border-radius: 8px;
+	border: 1px solid #f0f0f0;
+}
+body.dark-theme .overlay-content {
+    background-color: #444;
+    color: #fff;
+}
+
+body.dark-theme input[type="text"],
+body.dark-theme textarea,
+body.dark-theme select{
+	border: 1px solid #f0f0f0;
+	color: #fff;
+	background-color: #555;
+}
+
+body.dark-theme .app-footer {
+	background-color: #444;
+}
+
+/* --- Fireplace Theme (Overrides) --- */
+/*Fireplace theme is default theme, so no need to override the styles here. */
+
+/* --- Right-to-Left Support --- */
+
+html[dir="rtl"] .sidebar {
+    left: auto;
+    right: 0;
+    transform: translateX(100%); /* Start off-screen to the right */
+     border-right: none;
+	 border-left: 1px solid #ddd;
+}
+
+html[dir="rtl"] .sidebar.hidden {
+    transform: translateX(100%);
+}
+
+html[dir="rtl"] .main-content.sidebar-open {
+    margin-left: 0;
+    margin-right: 250px;
+}
+
+/* --- Compact Mode --- */
+
+body.compact-mode .task-item {
+    padding: 0.5rem; /* Smaller padding */
+}
+
+body.compact-mode .task-item h3 {
+    font-size: 1rem; /* Smaller font size */
+}
+
+/* --- Custom Font (Example - Open Sans) --- */
+
+body.font-open-sans {
+    font-family: 'Open Sans', sans-serif;
+}
+
+/* --- Animations --- */
+
+/* Example: Fade-in for new tasks */
+.task-item.fade-in {
+    animation: fadeIn 0.5s ease forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
     }
-    50% {
-        background-position: 100% 50%;
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+/* --- Media Queries for Responsiveness --- */
+
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%; /* Full-width sidebar on smaller screens */
+		top: 68px;
+		z-index: 50;
+    }
+	 .sidebar.hidden {
+        transform: translateX(-100%);
+    }
+    .main-content.sidebar-open {
+        margin-left: 0; /* No margin when sidebar is open on mobile */
+    }
+    .fab {
+        bottom: 1rem;
+        right: 1rem;
     }
 }
