@@ -43,6 +43,21 @@ body {
     justify-content: space-between;
 }
 
+/*Search Input*/
+#search-input {
+    margin-left: 1rem;
+    padding: 0.5rem;
+    border: none;
+    border-radius: 20px;
+    width: 200px;/*Adjust*/
+    background-color: rgba(255, 255, 255, 0.9);
+    color: #333;
+}
+#search-input:focus{
+    outline: none;
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+}
+
 .toolbar-bottom {
 	display: flex;
     justify-content: center;
@@ -145,6 +160,22 @@ body {
     transform: translateY(-5px); /* Lift on hover */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
+/*Subtask*/
+.subtask {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.25rem;
+    margin-left: 1rem;
+}
+
+.subtask input[type="checkbox"] {
+    margin-right: 0.5rem;
+}
+/* --- Pinned Task Style --- */
+.task-item.pinned {
+    border: 2px solid #f1c40f; /* Example: Yellow border for pinned tasks */
+    background-color: #fff9e6; /* Light yellow background */
+}
 
 /*Color Tag*/
 .task-item::before{
@@ -230,11 +261,12 @@ select{
 	border: 1px solid #ccc;
 }
 /*Input type date*/
-input[type="date"]{
+input[type="date"], input[type="time"], input[type="datetime-local"]{
 	margin: 0.5rem;
 	padding: 0.4rem;
 	border-radius: 4px;
 	border: 1px solid #ccc;
+    width: calc(100% - 1rem);
 }
 
 /* --- Form Elements --- */
@@ -285,6 +317,20 @@ textarea {
     margin-top: auto; /* Push footer to the bottom */
 }
 
+/* --- THEMES --- */
+
+/* --- Light Theme --- */
+body.light-theme {
+    background-color: #f5f5f5;
+    color: #333;
+}
+body.light-theme .task-item {
+    background-color: #fff;
+}
+body.light-theme .overlay-content {
+    background-color: #fff;
+}
+
 /* --- Dark Theme --- */
 body.dark-theme {
     background-color: #333;
@@ -325,7 +371,9 @@ body.dark-theme .overlay-content {
 body.dark-theme input[type="text"],
 body.dark-theme textarea,
 body.dark-theme select,
-body.dark-theme input[type="date"]{
+body.dark-theme input[type="date"],
+body.dark-theme input[type="time"],
+body.dark-theme input[type="datetime-local"]{
 	border: 1px solid #f0f0f0;
 	color: #fff;
 	background-color: #555;
@@ -337,6 +385,226 @@ body.dark-theme .app-footer {
 
 /* --- Fireplace Theme (Overrides) --- */
 /*Fireplace theme is default theme, so no need to override the styles here. */
+
+/* --- Forest Theme --- */
+body.forest-theme {
+    background-color: #c8d5b9; /* Light green */
+    color: #4a5759;
+}
+
+body.forest-theme .app-header {
+    background-color: #6b705c; /* Darker green */
+    color: #fff;
+}
+body.forest-theme .sidebar {
+    background-color: #a5a58d;
+}
+body.forest-theme .task-item {
+    background-color: #fff;
+    color: #4a5759;
+}
+body.forest-theme .overlay-content {
+	background-color: #fff;
+}
+body.forest-theme input[type="text"],
+body.forest-theme textarea,
+body.forest-theme select,
+body.forest-theme input[type="date"],
+body.forest-theme input[type="time"],
+body.forest-theme input[type="datetime-local"] {
+    border-color: #6b705c;
+	background-color: #fff;
+}
+body.forest-theme .button, body.forest-theme button, body.forest-theme .fab{
+	background-color: #6b705c;
+}
+body.forest-theme .button:hover, body.forest-theme button:hover, body.forest-theme .fab:hover{
+	background-color: #5b6350;
+}
+/* --- Ocean Theme --- */
+body.ocean-theme {
+    background-color: #90e0ef; /* Light blue */
+    color: #03045e;
+}
+body.ocean-theme .app-header {
+    background-color: #03045e; /* Dark blue */
+    color: #fff;
+}
+body.ocean-theme .sidebar {
+	background-color: #caf0f8;
+}
+body.ocean-theme .task-item {
+    background-color: #fff;
+}
+body.ocean-theme .overlay-content {
+	background-color: #fff;
+}
+body.ocean-theme input[type="text"],
+body.ocean-theme textarea,
+body.ocean-theme select,
+body.ocean-theme input[type="date"],
+body.ocean-theme input[type="time"],
+body.ocean-theme input[type="datetime-local"] {
+    border-color: #03045e;
+	background-color: #fff;
+}
+
+body.ocean-theme .button, body.ocean-theme button, body.ocean-theme .fab{
+	background-color: #03045e;
+}
+body.ocean-theme .button:hover, body.ocean-theme button:hover, body.ocean-theme .fab:hover{
+	background-color: #05078b;
+}
+/* --- Night Sky Theme --- */
+body.nightsky-theme {
+    background-color: #0f0f0f; /* Very dark blue */
+    color: #c8b1e4;
+}
+body.nightsky-theme .app-header {
+    background-color: #53357e; /* Purple */
+    color: #fff;
+}
+
+body.nightsky-theme .sidebar {
+    background-color: #555;
+    border-right: 1px solid #555;
+}
+
+body.nightsky-theme .sidebar nav ul li a {
+    color: #ddd;
+}
+
+body.nightsky-theme .sidebar nav ul li a:hover {
+	background-color: #666;
+}
+body.nightsky-theme .task-item {
+    background-color: #444;
+    color: #c8b1e4;
+}
+body.nightsky-theme .overlay-content {
+    background-color: #222;
+    color: #fff;
+}
+body.nightsky-theme input[type="text"],
+body.nightsky-theme textarea,
+body.nightsky-theme select,
+body.nightsky-theme input[type="date"],
+body.nightsky-theme input[type="time"],
+body.nightsky-theme input[type="datetime-local"]{
+    border-color: #c8b1e4;
+    background-color: #333;
+    color: #fff;
+}
+
+body.nightsky-theme .button, body.nightsky-theme button, body.nightsky-theme .fab{
+	background-color: #53357e;
+}
+body.nightsky-theme .button:hover, body.nightsky-theme button:hover, body.nightsky-theme .fab:hover{
+	background-color: #7957a8;
+}
+/* --- Desert Theme --- */
+body.desert-theme {
+    background-color: #fefae0; /* Light beige */
+    color: #606c38;
+}
+body.desert-theme .app-header{
+	background-color: #bc6c25;
+	color: #fff;
+}
+body.desert-theme .sidebar{
+	background-color: #e9edc9;
+}
+body.desert-theme .task-item {
+    background-color: #fff;
+}
+body.desert-theme .overlay-content {
+    background-color: #fff
+}
+body.desert-theme input[type="text"],
+body.desert-theme textarea,
+body.desert-theme select,
+body.desert-theme input[type="date"],
+body.desert-theme input[type="time"],
+body.desert-theme input[type="datetime-local"]{
+    border-color: #bc6c25;
+    background-color: #fff;
+}
+
+body.desert-theme .button, body.desert-theme button, body.desert-theme .fab{
+	background-color: #bc6c25;
+}
+body.desert-theme .button:hover, body.desert-theme button:hover, body.desert-theme .fab:hover{
+	background-color: #a55a18;
+}
+/* --- Monochrome Theme --- */
+body.monochrome-theme {
+    background-color: #f5f5f5; /* Light gray */
+    color: #222;
+}
+
+body.monochrome-theme .app-header {
+    background-color: #444;
+    color: #fff;
+}
+body.monochrome-theme .sidebar {
+	background-color: #ddd;
+}
+body.monochrome-theme .task-item {
+    background-color: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); /* Slightly darker shadow */
+}
+body.monochrome-theme .overlay-content{
+	background-color: #fff;
+}
+body.monochrome-theme input[type="text"],
+body.monochrome-theme textarea,
+body.monochrome-theme select,
+body.monochrome-theme input[type="date"],
+body.monochrome-theme input[type="time"],
+body.monochrome-theme input[type="datetime-local"]{
+    border-color: #444;
+    background-color: #fff;
+}
+body.monochrome-theme .button, body.monochrome-theme button, body.monochrome-theme .fab{
+	background-color: #444;
+}
+body.monochrome-theme .button:hover, body.monochrome-theme button:hover, body.monochrome-theme .fab:hover{
+	background-color: #666;
+}
+
+/* --- Pastel Theme --- */
+body.pastel-theme {
+    background-color: #f2d7d9; /* Light pink */
+    color: #735d78;
+}
+body.pastel-theme .app-header {
+     background-color: #b089b8; /* Muted purple */
+    color: #fff;
+}
+body.pastel-theme .sidebar{
+	background-color: #fae6e7;
+}
+body.pastel-theme .task-item {
+    background-color: #fff;
+}
+body.pastel-theme .overlay-content{
+	background-color: #fff;
+}
+body.pastel-theme input[type="text"],
+body.pastel-theme textarea,
+body.pastel-theme select,
+body.pastel-theme input[type="date"],
+body.pastel-theme input[type="time"],
+body.pastel-theme input[type="datetime-local"] {
+    border-color: #b089b8;
+	background-color: #fff;
+}
+body.pastel-theme .button, body.pastel-theme button, body.pastel-theme .fab{
+	background-color: #b089b8;
+}
+body.pastel-theme .button:hover, body.pastel-theme button:hover, body.pastel-theme .fab:hover{
+	background-color: #9a77a3;
+}
 
 /* --- Right-to-Left Support --- */
 
@@ -355,6 +623,14 @@ html[dir="rtl"] .sidebar.hidden {
 html[dir="rtl"] .main-content.sidebar-open {
     margin-left: 0;
     margin-right: 250px;
+}
+/*Toolbar customization*/
+#toolbar-customization{
+	margin-bottom: 1rem;
+}
+/*Hide elements*/
+.hidden-toolbar-element{
+    display: none !important;
 }
 
 /* --- Compact Mode --- */
@@ -418,4 +694,29 @@ body.font-open-sans {
         bottom: 1rem;
         right: 1rem;
     }
+    /* Adjust search input on smaller screen*/
+     #search-input {
+        width: 100%; /* Full width on mobile */
+        margin-left: 0;
+        margin-bottom: 0.5rem; /* Space below search */
+    }
+    .toolbar{
+        flex-direction: column;
+    }
+}
+
+/* --- Focus Mode --- */
+body.focus-mode #task-list {
+  display: none; /* Hide task list */
+}
+
+body.focus-mode #task-details {
+  position: fixed; /* Take over full screen */
+  top: var(--app-header-height, 68px); /* Adjust for header height */
+  left: 0;
+  width: 100%;
+  height: calc(100% - var(--app-header-height, 68px)); /*Consider header */
+  z-index: 30; /* Ensure it's above other content */
+  background-color: inherit; /* Inherit background from body */
+  overflow-y: auto; /* Allow scrolling within details */
 }
