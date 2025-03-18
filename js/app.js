@@ -23,6 +23,8 @@ const rtlToggle = document.getElementById('rtl-toggle');
 const fontSelect = document.getElementById('font-select');
 const compactModeToggle = document.getElementById('compact-mode-toggle');
 const hapticFeedbackToggle = document.getElementById('haptic-feedback-toggle');
+const newTaskDueDateInput = document.getElementById('new-task-due-date');
+const editTaskDueDateInput = document.getElementById('edit-task-due-date');
 
 // --- State Variables ---
 let tasks = []; // Array to store task objects
@@ -125,6 +127,11 @@ function displayTasks(filteredTasks = tasks) { // Accept filtered tasks
 		taskItem.dataset.taskId = task.id; // Store the task's ID *Corrected*
         taskItem.dataset.colorTag = task.colorTag; // Set the data-color-tag attribute
 
+        // --- CRUCIAL: Handle completed state visually ---
+        if (task.completed) {
+            taskItem.classList.add('completed'); // Add a CSS class for completed tasks
+        }
+
         taskItem.innerHTML = `
             <h3>${task.title}</h3>
             <p>${task.description}</p>
@@ -179,6 +186,7 @@ function closeAddTaskOverlay() {
     newTaskTitleInput.value = '';
     newTaskDescriptionInput.value = '';
 	colorTagSelect.value = 'none';
+    newTaskDueDateInput.value = ''; // Clear date
 }
 function openEditTaskOverlay(taskId){
 	const task = tasks.find(t => t.id === taskId);
@@ -189,6 +197,7 @@ function openEditTaskOverlay(taskId){
 	editTaskTitleInput.value = task.title;
 	editTaskDescriptionInput.value = task.description;
 	editColorTagSelect.value = task.colorTag;
+    editTaskDueDateInput.value = task.dueDate; // Populate date
 
 	editTaskOverlay.classList.remove('hidden');
 	editTaskOverlay.classList.add('visible');
@@ -203,9 +212,10 @@ function addNewTask() {
     const title = newTaskTitleInput.value.trim();
     const description = newTaskDescriptionInput.value.trim();
 	const colorTag = colorTagSelect.value;
+    const dueDate = newTaskDueDateInput.value;
 
-    if (!title) { // Basic validation
-        alert('Please enter a task title.');
+    if (!title || !dueDate) {
+        alert('Please enter a task title and due date.');
         return;
     }
 
@@ -213,7 +223,7 @@ function addNewTask() {
         id: generateId(), // Generate a unique ID
         title,
         description,
-		dueDate: new Date().toISOString().split('T')[0], //today by default
+		dueDate,  // Now using the date input value
 		colorTag,
         completed: false
     };
@@ -245,15 +255,17 @@ function editTask() {
     const newTitle = editTaskTitleInput.value.trim();
     const newDescription = editTaskDescriptionInput.value.trim();
 	const newColorTag = editColorTagSelect.value;
+    const newDueDate = editTaskDueDateInput.value;
 
-    if (!newTitle) {
-        alert('Please enter a task title.');
+    if (!newTitle || !newDueDate) {
+        alert('Please enter a task title and due date.');
         return;
     }
 
     task.title = newTitle;
     task.description = newDescription;
 	task.colorTag = newColorTag;
+    task.dueDate = newDueDate;
 
     saveTasks();
     displayTasks();
@@ -321,6 +333,8 @@ function filterTasks(filterType) {
             });
             break;
         // Add more cases for other filters (priority, location, etc.)
+		case 'profiles': //Just remove the active, do nothing else
+            break;
 		default:
 			filteredTasks = tasks; // Default to all
     }
@@ -502,6 +516,7 @@ navigator.serviceWorker.addEventListener('message', event => {
 				editTaskTitleInput.value = task.title;
 				editTaskDescriptionInput.value = task.description;
 				editColorTagSelect.value = task.colorTag;
+                editTaskDueDateInput.value = task.dueDate;
 
 				editTaskOverlay.classList.remove('hidden');
            }
