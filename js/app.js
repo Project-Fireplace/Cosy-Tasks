@@ -1,11 +1,364 @@
+// script.js
+
+// --- DOM Element Variables ---
+const menuToggle = document.getElementById('menu-toggle');
+const settingsToggle = document.getElementById('settings-toggle');
+const sidebar = document.querySelector('.sidebar');
+const mainContent = document.querySelector('.main-content');
+const taskList = document.getElementById('task-list');
+const taskDetails = document.getElementById('task-details');
+const taskDetailsTitle = document.getElementById('task-details-title');
+const taskDetailsContent = document.getElementById('task-details-content');
+const addTaskOverlay = document.getElementById('add-task-overlay');
+const newTaskTitleInput = document.getElementById('new-task-title');
+const newTaskDescriptionInput = document.getElementById('new-task-description');
+const colorTagSelect = document.getElementById('color-tag-select'); // Get the select element
+const editTaskOverlay = document.getElementById('edit-task-overlay');
+const editTaskTitleInput = document.getElementById('edit-task-title');
+const editTaskDescriptionInput = document.getElementById('edit-task-description');
+const editColorTagSelect = document.getElementById('edit-color-tag-select');
+const settingsOverlay = document.getElementById('settings-overlay');
+const themeSelect = document.getElementById('theme-select');
+const rtlToggle = document.getElementById('rtl-toggle');
+const fontSelect = document.getElementById('font-select');
+const compactModeToggle = document.getElementById('compact-mode-toggle');
+const hapticFeedbackToggle = document.getElementById('haptic-feedback-toggle');
+
+// --- State Variables ---
+let tasks = []; // Array to store task objects
+let currentlyEditingTaskId = null; // Track which task is being edited
+
+// --- Functions ---
+
+// --- Service Worker Registration ---
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/service-worker.js')
+        .then(registration => {
+            console.log('Service Worker registered with scope:', registration.scope);
+        })
+        .catch(error => {
+            console.error('Service Worker registration failed:', error);
+        });
+}
+// --- Local Storage Functions ---
+function saveTasks() {
+    localStorage.setItem('tasks', JSON.stringify(tasks));
+}
+
+function loadTasks() {
+    const storedTasks = localStorage.getItem('tasks');
+    if (storedTasks) {
+        tasks = JSON.parse(storedTasks);
+        displayTasks();
+    }else{
+        // Seed with example data if local storage is empty
+        tasks = [
+            { id: generateId(), title: "Example Task 1", description: "This is a sample task.", dueDate: "2024-03-25", colorTag: "red", completed: false },
+            { id: generateId(), title: "Another Task", description: "Learn more about PWAs.", dueDate: "2024-03-22", colorTag: "blue", completed: true },
+            { id: generateId(), title: "Complete Project", description: "Finish the Cosy Tasks app.", dueDate: "2024-03-19", colorTag: "green", completed: false}
+        ];
+        saveTasks();
+        displayTasks();
+    }
+}
+
+// --- Settings Functions ---
+function saveSettings() {
+    const settings = {
+        theme: themeSelect.value,
+        rtl: rtlToggle.checked,
+        font: fontSelect.value,
+        compactMode: compactModeToggle.checked,
+		hapticFeedback: hapticFeedbackToggle.checked
+    };
+    localStorage.setItem('settings', JSON.stringify(settings));
+    applySettings(settings); // Apply immediately
+}
+
+function loadSettings() {
+    const storedSettings = localStorage.getItem('settings');
+    let settings = { // Default values
+			theme: 'fireplace', // Default theme
+			rtl: false,
+			font: 'Roboto',
+			compactMode: false,
+			hapticFeedback: true
+		};
+    if (storedSettings) {
+        settings = JSON.parse(storedSettings);
+        // Set UI elements to reflect loaded settings
+		themeSelect.value = settings.theme;
+		rtlToggle.checked = settings.rtl;
+		fontSelect.value = settings.font;
+		compactModeToggle.checked = settings.compactMode;
+		hapticFeedbackToggle.checked = settings.hapticFeedback
+    }
+
+    applySettings(settings);
+}
+
+function applySettings(settings) {
+    // Apply Theme
+    document.body.classList.remove('light-theme', 'dark-theme', 'fireplace-theme');
+    document.body.classList.add(`${settings.theme}-theme`);
+
+    // Apply RTL
+    document.documentElement.dir = settings.rtl ? 'rtl' : 'ltr';
+
+	//Apply font
+	document.body.classList.remove('font-roboto', 'font-open-sans'); // Remove other fonts
+	document.body.classList.add(`font-${settings.font.toLowerCase().replace(/\s/g, '-')}`);
+
+    // Apply Compact Mode
+    document.body.classList.toggle('compact-mode', settings.compactMode);
+}
+
+
+// --- Task Display Functions ---
+
+function displayTasks(filteredTasks = tasks) { // Accept filtered tasks
+    taskList.innerHTML = ''; // Clear existing tasks
+
+    filteredTasks.forEach(task => { // Use filteredTasks
+        const taskItem = document.createElement('div');
+        taskItem.classList.add('task-item', 'fade-in'); // Add fade-in class
+		taskItem.dataset.taskId = task.id; // Store the task's ID *Corrected*
+        taskItem.dataset.colorTag = task.colorTag; // Set the data-color-tag attribute
+
+        taskItem.innerHTML = `
+            <h3>${task.title}</h3>
+            <p>${task.description}</p>
+			<p>Due Date: ${task.dueDate}</p>
+			<button class="complete-button" data-task-id="${task.id}">${task.completed? "Undo" : "Complete"}</button>
+            <!-- Other task details here -->
+        `;
+         // Add event listener for complete button *IMPROVED*
+		const completeButton = taskItem.querySelector('.complete-button');
+		completeButton.addEventListener('click', (event) => {
+			event.stopPropagation(); // Prevent the task card click
+			toggleTaskCompletion(task.id); // Pass the task ID
+		});
+        taskList.appendChild(taskItem);
+    });
+
+	attachTaskCardListeners(); // Attach listeners *after* adding to DOM
+}
+
+function showTaskDetails(taskId) {
+    const task = tasks.find(t => t.id === taskId);
+    if (task) {
+        taskDetailsTitle.textContent = task.title;
+        taskDetailsContent.innerHTML = `
+            <p>${task.description}</p>
+            <p>Due Date: ${task.dueDate}</p>
+            <p>Color Tag: ${task.colorTag}</p>
+			<p>Completed: ${task.completed? "Yes" : "No"}</p>
+            <!-- Add other task details here -->
+        `;
+        taskDetails.classList.remove('hidden'); // Show details
+        taskList.classList.add('hidden'); // Hide list
+    }
+}
+function closeTaskDetails(){
+	taskDetails.classList.add('hidden');
+	taskList.classList.remove('hidden');
+}
+
+// --- Task Manipulation Functions ---
+function generateId() {
+    return '_' + Math.random().toString(36).substr(2, 9); // Generate a simple unique ID
+}
+function openAddTaskOverlay() {
+    addTaskOverlay.classList.remove('hidden');
+	addTaskOverlay.classList.add('visible');
+}
+function closeAddTaskOverlay() {
+    addTaskOverlay.classList.add('hidden');
+	addTaskOverlay.classList.remove('visible');
+    // Clear input fields
+    newTaskTitleInput.value = '';
+    newTaskDescriptionInput.value = '';
+	colorTagSelect.value = 'none';
+}
+function openEditTaskOverlay(taskId){
+	const task = tasks.find(t => t.id === taskId);
+	if(!task) return; // Exit if task not found
+
+	currentlyEditingTaskId = taskId;
+
+	editTaskTitleInput.value = task.title;
+	editTaskDescriptionInput.value = task.description;
+	editColorTagSelect.value = task.colorTag;
+
+	editTaskOverlay.classList.remove('hidden');
+	editTaskOverlay.classList.add('visible');
+}
+function closeEditTaskOverlay(){
+	editTaskOverlay.classList.add('hidden');
+	editTaskOverlay.classList.remove('visible');
+	currentlyEditingTaskId = null; // Reset
+}
+
+function addNewTask() {
+    const title = newTaskTitleInput.value.trim();
+    const description = newTaskDescriptionInput.value.trim();
+	const colorTag = colorTagSelect.value;
+
+    if (!title) { // Basic validation
+        alert('Please enter a task title.');
+        return;
+    }
+
+    const newTask = {
+        id: generateId(), // Generate a unique ID
+        title,
+        description,
+		dueDate: new Date().toISOString().split('T')[0], //today by default
+		colorTag,
+        completed: false
+    };
+
+    tasks.push(newTask);
+    saveTasks();
+    displayTasks();
+    closeAddTaskOverlay();
+
+	showNotification(`New Task Added: ${newTask.title}`, {
+        body: newTask.description,
+        icon: 'images/icon-96x96.png',
+        tag: 'new-task',  //  use a tag to prevent duplicate notifications
+		data: { taskId: newTask.id }, // Include the task ID
+		actions: [ // Now the service worker can use these actions
+			{ action: 'complete', title: '✅ Complete' },
+			{ action: 'snooze', title: '⏰ Snooze' },
+            { action: 'edit', title: '✏️ Edit' }
+		]
+    });
+	hapticFeedback();
+}
+function editTask() {
+    if (!currentlyEditingTaskId) return;
+
+    const task = tasks.find(t => t.id === currentlyEditingTaskId);
+    if (!task) return;  // Should not happen, but check anyway
+
+    const newTitle = editTaskTitleInput.value.trim();
+    const newDescription = editTaskDescriptionInput.value.trim();
+	const newColorTag = editColorTagSelect.value;
+
+    if (!newTitle) {
+        alert('Please enter a task title.');
+        return;
+    }
+
+    task.title = newTitle;
+    task.description = newDescription;
+	task.colorTag = newColorTag;
+
+    saveTasks();
+    displayTasks();
+    closeEditTaskOverlay();
+	hapticFeedback();
+}
+
+function deleteTask(taskId) {
+
+    tasks = tasks.filter(task => task.id !== taskId);
+    saveTasks();
+    displayTasks();
+    closeTaskDetails();
+	hapticFeedback();
+}
+
+function toggleTaskCompletion(taskId) {
+    const task = tasks.find(t => t.id === taskId);
+    if (task) {
+        task.completed = !task.completed; // Toggle completion status
+        saveTasks();
+        displayTasks(); // Update the display
+		hapticFeedback();
+    }
+}
+
+// --- UI Interaction Functions ---
+
+function toggleSidebar() {
+    sidebar.classList.toggle('hidden');
+    mainContent.classList.toggle('sidebar-open');
+}
+
+function openSettingsOverlay() {
+    settingsOverlay.classList.remove('hidden');
+	settingsOverlay.classList.add('visible');
+}
+
+function closeSettingsOverlay() {
+	settingsOverlay.classList.add('hidden');
+	settingsOverlay.classList.remove('visible');
+}
+// --- Filtering ---
+function filterTasks(filterType) {
+    let filteredTasks = [];
+
+    switch (filterType) {
+        case 'all':
+            filteredTasks = tasks;
+            break;
+        case 'today':
+            const today = new Date();
+            filteredTasks = tasks.filter(task => {
+                const dueDate = new Date(task.dueDate);
+                return dueDate.toDateString() === today.toDateString();
+            });
+            break;
+        case 'upcoming':
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1); // Start from tomorrow
+
+            filteredTasks = tasks.filter(task => {
+                const dueDate = new Date(task.dueDate);
+				return dueDate >= tomorrow;
+            });
+            break;
+        // Add more cases for other filters (priority, location, etc.)
+		default:
+			filteredTasks = tasks; // Default to all
+    }
+
+    displayTasks(filteredTasks); // Pass the filtered tasks to displayTasks
+}
+
+// --- Notifications ---
+function showNotification(title, options) {
+    if ('Notification' in window && Notification.permission === 'granted') {
+        navigator.serviceWorker.getRegistration().then(registration => { // Use getRegistration
+            if (registration) {
+                registration.showNotification(title, options);
+            } else {
+                console.error('No service worker registration found.');
+            }
+        });
+    }
+	else {
+		 // Notifications not supported or not granted
+        console.log("Notifications are not supported");
+	}
+}
+// --- Haptic Feedback ---
+function hapticFeedback() {
+	// Check for haptic feedback support and setting
+    if ('vibrate' in navigator && hapticFeedbackToggle.checked) {
+        navigator.vibrate(50); // Vibrate for 50ms (adjust as needed)
+    }
+}
 // --- Event Listeners ---
 
 // --- Task Card Click (Show Details) ---
 function attachTaskCardListeners() {
-    const taskCards = document.querySelectorAll('.task-card');
+    const taskCards = document.querySelectorAll('.task-item'); // Corrected selector
     taskCards.forEach(card => {
         card.addEventListener('click', () => {
-            const taskId = card.dataset.taskId;
+            const taskId = card.dataset.taskId; // Corrected
             showTaskDetails(taskId);
         });
     });
