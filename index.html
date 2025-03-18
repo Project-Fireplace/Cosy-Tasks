@@ -3,118 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cozy Tasks - To-Do List</title>
+    <title>Cosy Tasks</title>
     <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="images/icon-192.png">
-    <meta name="theme-color" content="#f4511e">
-    <!-- Material Icons -->
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <!-- Roboto Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <!-- SortableJS (for drag and drop) -->
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-    <!-- CSS -->
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/utilities.css">
+    <!-- Include component-specific CSS as needed -->
+    <link rel="stylesheet" href="css/components/task-list.css">
+    <link rel="stylesheet" href="css/components/task-item.css">
+    <link rel="stylesheet" href="css/components/toolbar.css">
 </head>
-<body class="light-theme">
-    <div class="app-container">
-        <!-- Side Drawer (Always Present on Large Screens) -->
-        <nav id="mainMenu" class="side-drawer">
-            <div class="drawer-header">
-                <h2>Menu</h2>
-                <button id="closeMenuBtn" class="icon-button" aria-label="Close Menu"><i class="material-icons">close</i></button>
+<body>
+    <div id="app">
+        <header class="toolbar">
+           <div class="toolbar-left">
+             <button id='add-task'>Add</button>
+           </div>
+           <div class="toolbar-center">
+              <h1>Cosy Tasks</h1>
             </div>
-            <a href="#" class="menu-item"><i class="material-icons">home</i>Home</a>
-            <a href="#" class="menu-item" id="clearAllBtn"><i class="material-icons">delete_forever</i>Clear All Tasks</a>
-           <a href="#" class="menu-item filter-link"><i class="material-icons">filter_list</i>Filters</a>
-            <div class="filter-options">
-                <label for="priorityFilter">Priority:</label>
-                <select id="priorityFilter">
-                    <option value="all">All</option>
-                    <option value="high">High</option>
-                    <option value="medium">Medium</option>
-                    <option value="low">Low</option>
-                </select>
-                <label for="dueDateFilter">Due Date:</label>
-                <input type="date" id="dueDateFilter">
-                <button id="applyFiltersBtn" class="filter-button">Apply</button>
+            <div class="toolbar-right">
+               <button id='filter-btn'>Filter</button>
             </div>
-             <div class="separator"></div>
-             <!--Theme-->
-            <a href="#" class="menu-item theme-link"><i class="material-icons">palette</i>Themes</a>
-                <div class="theme-options">
-                    <button class="theme-option" data-theme="light" aria-label="Light Theme"></button>
-                    <button class="theme-option" data-theme="dark" aria-label="Dark Theme"></button>
-                    <button class="theme-option" data-theme="fiery" aria-label="Fiery Theme"></button>
-                </div>
-            <div class="separator"></div>
-            <a href="#" class="menu-item settings-link"><i class="material-icons">settings</i>Settings</a>
-            <div class="settings-options">
-                <label for="notificationToggle">
-                    <input type="checkbox" id="notificationToggle"> Enable Notifications
-                </label>
-                <label for="reminderTime">Reminder Time (minutes):</label>
-                <input type="number" id="reminderTime" min="1" value="30">
-            </div>
-        </nav>
 
-        <!-- Main Content Area -->
-        <div class="content-wrapper">
-            <header>
-                <div class="toolbar">
-                    <button id="menuBtn" class="icon-button" aria-label="Open Menu"><i class="material-icons">menu</i></button>
-                    <h1>Cozy Tasks</h1>
-                    <button id="moreOptionsBtn" class="icon-button" aria-label="More Options"><i class="material-icons">more_vert</i></button>
+            <!-- Example: Customizable Toolbar -->
+            <!-- This would be dynamically generated based on settings -->
+        </header>
+        <main>
+              <section class="task-creation-area">
+                <!-- Task input fields, due date picker, color tag selector, etc. -->
+                <input type="text" id="task-title" placeholder="Add a new task...">
+                <input type="datetime-local" id="task-due-date">
+                <div class="color-tag-selector">
+                   <span class='tag red'></span>
+                    <span class='tag blue'></span>
+                    <span class='tag green'></span>
+                    <span class='tag orange'></span>
                 </div>
-                <!-- "More Options" Dropdown -->
-                <div id="moreOptionsMenu" class="dropdown-menu">
-                    <a href="#" class="menu-item" id="importBtn"><i class="material-icons">file_upload</i>Import Tasks</a>
-                    <a href="#" class="menu-item" id="exportBtn"><i class="material-icons">file_download</i>Export Tasks</a>
-                    <a href="#" class="menu-item" id="toggleCompletedBtn"><i class="material-icons">visibility</i>Toggle Completed</a>
-                </div>
-            </header>
+                <button id="save-task-button"> Save Task</button>
+            </section>
 
-            <main>
-                <section id="content">
-                   <div class="search-bar">  <!-- Search Bar -->
-                        <input type="text" id="searchInput" placeholder="Search tasks..." aria-label="Search tasks">
-                        <i class="material-icons search-icon">search</i>
-                    </div>
-                    <h2>Tasks</h2>
-                    <ul id="taskList">
-                        <!-- Tasks will be added here -->
-                    </ul>
-                </section>
-
-                <section id="offline-section" style="display: none;">
-                    <div class="offline-message">
-                        <h2>You are currently offline</h2>
-                        <p>Some features may be unavailable.</p>
-                    </div>
-                </section>
-            </main>
-        </div>
-         <!-- Add Task Area (FAB) -->
-        <div class="add-task-area">
-            <input type="text" id="taskInput" placeholder="Add a task..." aria-label="Add a task">
-            <select id="prioritySelect" aria-label="Select task priority">
-                <option value="low">Low</option>  <!-- Default to Low -->
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
-            </select>
-            <input type="date" id="dueDateInput" aria-label="Set due date">
-             <select id="recurrenceSelect" aria-label="Set task recurrence">
-                <option value="none">None</option>
-                <option value="daily">Daily</option>
-                <option value="weekly">Weekly</option>
-                <option value="monthly">Monthly</option>
-                <option value="yearly">Yearly</option>
-            </select>
-            <button id="addTaskBtn" class="add-button" aria-label="Add Task">
-                <i class="material-icons">add</i>
-            </button>
-        </div>
+            <section id="task-list" class="task-list">
+                <!-- Task items will be dynamically added here -->
+            </section>
+        </main>
+        <footer>
+            <!-- Status bar, sync indicator, etc. -->
+            <p>Cosy Tasks © 2023</p>
+        </footer>
     </div>
-    <script src="script.js"></script>
+
+    <script src="js/lib/idb.js"></script> <!-- Or use a library like idb-keyval -->
+    <script src="js/data.js"></script>
+    <script src="js/settings.js"></script>
+    <script src="js/lib/notifications.js"></script>
+    <script src="js/lib/theming.js"></script>
+    <script src="js/components/TaskList.js"></script>
+    <script src="js/components/TaskItem.js"></script>
+    <script src="js/app.js"></script>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('Service Worker registered!', reg))
+                .catch(err => console.error('Service Worker registration failed:', err));
+        }
+    </script>
 </body>
 </html>
