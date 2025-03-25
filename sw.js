@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cosy-tasks-v11';
+const CACHE_NAME = 'cosy-tasks-v12';
 const urlsToCache = [
     '/',
     '/index.html',
