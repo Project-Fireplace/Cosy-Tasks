@@ -25,10 +25,45 @@ const compactModeToggle = document.getElementById('compact-mode-toggle');
 const hapticFeedbackToggle = document.getElementById('haptic-feedback-toggle');
 const newTaskDueDateInput = document.getElementById('new-task-due-date');
 const editTaskDueDateInput = document.getElementById('edit-task-due-date');
+// New DOM elements
+const newTaskDueTimeInput = document.getElementById('new-task-due-time');
+const editTaskDueTimeInput = document.getElementById('edit-task-due-time');
+const newTaskLocationInput = document.getElementById('new-task-location');
+const editTaskLocationInput = document.getElementById('edit-task-location');
+const newTaskPrioritySelect = document.getElementById('new-task-priority');
+const editTaskPrioritySelect = document.getElementById('edit-task-priority');
+const newTaskRecurrenceSelect = document.getElementById('new-task-recurrence');
+const editTaskRecurrenceSelect = document.getElementById('edit-task-recurrence');
+const newTaskReminderInput = document.getElementById('new-task-reminder');
+const editTaskReminderInput = document.getElementById('edit-task-reminder');
+const newTaskNotesTextarea = document.getElementById('new-task-notes');
+const editTaskNotesTextarea = document.getElementById('edit-task-notes');
+const newTaskSubtasksContainer = document.getElementById('new-task-subtasks-container');
+const editTaskSubtasksContainer = document.getElementById('edit-task-subtasks-container');
+const addNewSubtaskButton = document.getElementById('add-new-subtask');
+const addEditSubtaskButton = document.getElementById('add-edit-subtask');
+const newTaskAttachmentsContainer = document.getElementById('new-task-attachments-container');
+const editTaskAttachmentsContainer = document.getElementById('edit-task-attachments-container');
+const addNewAttachmentButtons = document.querySelectorAll('.add-new-attachment'); // Select *all* add attachment buttons
+const addEditAttachmentButtons = document.querySelectorAll('.add-edit-attachment');
+const searchInput = document.getElementById('search-input');
+const sortButton = document.getElementById('sort-button');
+const focusModeToggle = document.getElementById('focus-mode-toggle');
+const dndModeToggle = document.getElementById('dnd-mode-toggle');
+const archiveTaskButton = document.getElementById('archive-task'); // Archive button
+const showSearchCheckbox = document.getElementById('show-search');
+const showSortCheckbox = document.getElementById('show-sort');
+const showFocusModeCheckbox = document.getElementById('show-focus-mode');
+const showDndModeCheckbox = document.getElementById('show-dnd-mode');
 
 // --- State Variables ---
 let tasks = []; // Array to store task objects
 let currentlyEditingTaskId = null; // Track which task is being edited
+let isFocusMode = false;
+let isDNDMode = false;
+let sortMethod = 'dueDate'; // Default sort method
+let archivedTasks = []; // Array to store archived tasks
+
 
 // --- Functions ---
 
@@ -45,23 +80,27 @@ if ('serviceWorker' in navigator) {
 // --- Local Storage Functions ---
 function saveTasks() {
     localStorage.setItem('tasks', JSON.stringify(tasks));
+    localStorage.setItem('archivedTasks', JSON.stringify(archivedTasks)); // Save archived tasks
 }
 
 function loadTasks() {
     const storedTasks = localStorage.getItem('tasks');
+    const storedArchivedTasks = localStorage.getItem('archivedTasks');
+
     if (storedTasks) {
         tasks = JSON.parse(storedTasks);
-        displayTasks();
     }else{
         // Seed with example data if local storage is empty
         tasks = [
-            { id: generateId(), title: "Example Task 1", description: "This is a sample task.", dueDate: "2024-03-25", colorTag: "red", completed: false },
-            { id: generateId(), title: "Another Task", description: "Learn more about PWAs.", dueDate: "2024-03-22", colorTag: "blue", completed: true },
-            { id: generateId(), title: "Complete Project", description: "Finish the Cosy Tasks app.", dueDate: "2024-03-19", colorTag: "green", completed: false}
+            { id: generateId(), title: "Example Task 1", description: "This is a sample task.", dueDate: "2024-03-25", dueTime: "10:30", colorTag: "red", completed: false, priority: "medium", location: "Office", recurrence: "none", reminder: "", notes: "Some notes", subtasks: [{id: generateId(), text: 'Subtask 1', completed: false}], attachments: ['file1.pdf'], pinned: false},
+            { id: generateId(), title: "Another Task", description: "Learn more about PWAs.", dueDate: "2024-03-22", dueTime: "14:00", colorTag: "blue", completed: true,  priority: "low", location: "Home", recurrence: "weekly", reminder: "", notes: "", subtasks: [], attachments: [], pinned: true},
+            { id: generateId(), title: "Complete Project", description: "Finish the Cosy Tasks app.", dueDate: "2024-03-19", dueTime: "17:00", colorTag: "green", completed: false, priority: "high", location: "Remote", recurrence: "none", reminder: "", notes: "Final touches", subtasks: [], attachments: [], pinned: false}
         ];
-        saveTasks();
-        displayTasks();
     }
+    if (storedArchivedTasks) {
+        archivedTasks = JSON.parse(storedArchivedTasks);
+    }
+     displayTasks(); // Always display tasks after loading.
 }
 
 // --- Settings Functions ---
@@ -71,10 +110,17 @@ function saveSettings() {
         rtl: rtlToggle.checked,
         font: fontSelect.value,
         compactMode: compactModeToggle.checked,
-		hapticFeedback: hapticFeedbackToggle.checked
+		hapticFeedback: hapticFeedbackToggle.checked,
+        toolbar: { // Store toolbar visibility
+            search: showSearchCheckbox.checked,
+            sort: showSortCheckbox.checked,
+            focusMode: showFocusModeCheckbox.checked,
+            dndMode: showDndModeCheckbox.checked,
+        }
     };
     localStorage.setItem('settings', JSON.stringify(settings));
     applySettings(settings); // Apply immediately
+	closeSettingsOverlay(); // Close after saving
 }
 
 function loadSettings() {
@@ -84,7 +130,13 @@ function loadSettings() {
 			rtl: false,
 			font: 'Roboto',
 			compactMode: false,
-			hapticFeedback: true
+			hapticFeedback: true,
+            toolbar: { // Default toolbar visibility
+                search: true,
+                sort: true,
+                focusMode: true,
+                dndMode: true,
+            }
 		};
     if (storedSettings) {
         settings = JSON.parse(storedSettings);
@@ -93,7 +145,13 @@ function loadSettings() {
 		rtlToggle.checked = settings.rtl;
 		fontSelect.value = settings.font;
 		compactModeToggle.checked = settings.compactMode;
-		hapticFeedbackToggle.checked = settings.hapticFeedback
+		hapticFeedbackToggle.checked = settings.hapticFeedback;
+        // Toolbar settings
+        showSearchCheckbox.checked = settings.toolbar.search;
+        showSortCheckbox.checked = settings.toolbar.sort;
+        showFocusModeCheckbox.checked = settings.toolbar.focusMode;
+        showDndModeCheckbox.checked = settings.toolbar.dndMode;
+
     }
 
     applySettings(settings);
@@ -101,7 +159,11 @@ function loadSettings() {
 
 function applySettings(settings) {
     // Apply Theme
-    document.body.classList.remove('light-theme', 'dark-theme', 'fireplace-theme');
+    document.body.classList.remove(
+        'light-theme', 'dark-theme', 'fireplace-theme', 'forest-theme', 'ocean-theme',
+        'nightsky-theme', 'desert-theme', 'monochrome-theme', 'pastel-theme',
+        'glassmorphism-theme', 'retro-theme', 'minimalist-theme', 'cyberpunk-theme', 'nature-theme' // Add new themes
+    );
     document.body.classList.add(`${settings.theme}-theme`);
 
     // Apply RTL
@@ -113,57 +175,148 @@ function applySettings(settings) {
 
     // Apply Compact Mode
     document.body.classList.toggle('compact-mode', settings.compactMode);
+
+    // Apply Toolbar Customization
+    searchInput.classList.toggle('hidden-toolbar-element', !settings.toolbar.search);
+    sortButton.classList.toggle('hidden-toolbar-element', !settings.toolbar.sort);
+    focusModeToggle.classList.toggle('hidden-toolbar-element', !settings.toolbar.focusMode);
+    dndModeToggle.classList.toggle('hidden-toolbar-element', !settings.toolbar.dndMode);
 }
 
 
 // --- Task Display Functions ---
+function displayTasks(filteredTasks = tasks) {
+    taskList.innerHTML = '';
 
-function displayTasks(filteredTasks = tasks) { // Accept filtered tasks
-    taskList.innerHTML = ''; // Clear existing tasks
+    // Handle pinning *before* sorting
+    const pinnedTasks = filteredTasks.filter(task => task.pinned);
+    const unpinnedTasks = filteredTasks.filter(task => !task.pinned);
 
-    filteredTasks.forEach(task => { // Use filteredTasks
+   // Combine pinned and unpinned tasks (pinned first)
+   const sortedAndPinnedTasks = [...pinnedTasks, ...sortTasks(unpinnedTasks)];
+
+
+    sortedAndPinnedTasks.forEach(task => {
         const taskItem = document.createElement('div');
-        taskItem.classList.add('task-item', 'fade-in'); // Add fade-in class
-		taskItem.dataset.taskId = task.id; // Store the task's ID *Corrected*
-        taskItem.dataset.colorTag = task.colorTag; // Set the data-color-tag attribute
+        taskItem.classList.add('task-item', 'fade-in');
+        taskItem.dataset.taskId = task.id;
+        taskItem.dataset.colorTag = task.colorTag;
 
-        // --- CRUCIAL: Handle completed state visually ---
         if (task.completed) {
-            taskItem.classList.add('completed'); // Add a CSS class for completed tasks
+            taskItem.classList.add('completed');
         }
 
+        // Pinned class
+        if (task.pinned) {
+            taskItem.classList.add('pinned');
+        }
+
+        let subtaskHtml = '';
+        if(task.subtasks && task.subtasks.length > 0){
+            subtaskHtml += '<ul>';
+            task.subtasks.forEach(sub => {
+                subtaskHtml += `<li class="subtask"><input type="checkbox" data-subtask-id="${sub.id}" ${sub.completed? "checked" : ""} disabled>${sub.text}</li>`
+            });
+            subtaskHtml += '</ul>'
+        }
+
+        let attachmentHtml = '';
+        if(task.attachments && task.attachments.length > 0){
+           attachmentHtml += 'Attachments: ';
+            attachmentHtml += task.attachments.join(', ');
+        }
+
+         // Calculate progress for progress bar (if subtasks exist)
+        let progressBarHtml = '';
+        if (task.subtasks && task.subtasks.length > 0) {
+            const completedSubtasks = task.subtasks.filter(sub => sub.completed).length;
+            const progressPercentage = (completedSubtasks / task.subtasks.length) * 100;
+            progressBarHtml = `<progress value="${progressPercentage}" max="100"></progress>`;
+        }
+
+
         taskItem.innerHTML = `
-            <h3>${task.title}</h3>
+            <h3>${task.title}  ${task.pinned ? '<span class="material-symbols-outlined">push_pin</span>' : ''}</h3> 
             <p>${task.description}</p>
-			<p>Due Date: ${task.dueDate}</p>
-			<button class="complete-button" data-task-id="${task.id}">${task.completed? "Undo" : "Complete"}</button>
-            <!-- Other task details here -->
+            <p>Due Date: ${task.dueDate} ${task.dueTime}</p>
+            <p>Priority: ${task.priority}</p>
+             ${progressBarHtml} <!-- Progress bar -->
+            ${subtaskHtml}
+            <p>${attachmentHtml}</p>
+            <button class="complete-button" data-task-id="${task.id}">${task.completed ? "Undo" : "Complete"}</button>
+             <button class="pin-button" data-task-id="${task.id}">${task.pinned ? "Unpin" : "Pin"}</button>
         `;
-         // Add event listener for complete button *IMPROVED*
-		const completeButton = taskItem.querySelector('.complete-button');
+
+        const completeButton = taskItem.querySelector('.complete-button');
 		completeButton.addEventListener('click', (event) => {
 			event.stopPropagation(); // Prevent the task card click
 			toggleTaskCompletion(task.id); // Pass the task ID
 		});
+
+        // Pin button event listener *NEW*
+        const pinButton = taskItem.querySelector('.pin-button');
+        pinButton.addEventListener('click', (event) => {
+            event.stopPropagation(); // Prevent task card click
+            togglePinTask(task.id);
+        });
+
         taskList.appendChild(taskItem);
     });
 
-	attachTaskCardListeners(); // Attach listeners *after* adding to DOM
+    attachTaskCardListeners();
 }
 
 function showTaskDetails(taskId) {
-    const task = tasks.find(t => t.id === taskId);
+    const task = tasks.find(t => t.id === taskId) || archivedTasks.find(t => t.id === taskId); // Check archived tasks too
     if (task) {
         taskDetailsTitle.textContent = task.title;
+          // Build subtask list HTML
+        let subtaskHtml = '';
+        if (task.subtasks && task.subtasks.length > 0) {
+            subtaskHtml = '<ul>';
+            task.subtasks.forEach(subtask => {
+                subtaskHtml += `<li>${subtask.text} (Completed: ${subtask.completed ? 'Yes' : 'No'})</li>`;
+            });
+            subtaskHtml += '</ul>';
+        }
+
+        // Build attachments list HTML
+        let attachmentsHtml = '';
+        if (task.attachments && task.attachments.length > 0) {
+            attachmentsHtml = '<ul>';
+            task.attachments.forEach(attachment => {
+                attachmentsHtml += `<li>${attachment}</li>`;
+            });
+            attachmentsHtml += '</ul>';
+        }
+
         taskDetailsContent.innerHTML = `
             <p>${task.description}</p>
             <p>Due Date: ${task.dueDate}</p>
-            <p>Color Tag: ${task.colorTag}</p>
+            <p>Due Time: ${task.dueTime}</p>
+            <p>Location: ${task.location}</p>
+            <p>Priority: ${task.priority}</p>
+            <p>Recurrence: ${task.recurrence}</p>
+            <p>Reminder: ${task.reminder}</p>
+            <p>Notes: ${task.notes}</p>
+            ${subtaskHtml}
+            ${attachmentsHtml}
 			<p>Completed: ${task.completed? "Yes" : "No"}</p>
             <!-- Add other task details here -->
         `;
-        taskDetails.classList.remove('hidden'); // Show details
-        taskList.classList.add('hidden'); // Hide list
+
+        // Show archive/unarchive button based on task's location
+        if (tasks.includes(task)) {
+            archiveTaskButton.textContent = 'Archive';
+            archiveTaskButton.dataset.action = 'archive'; // Use data-action
+        } else {
+            archiveTaskButton.textContent = 'Unarchive';
+            archiveTaskButton.dataset.action = 'unarchive'; // Use data-action
+        }
+        archiveTaskButton.dataset.taskId = taskId; // Set the task ID
+
+        taskDetails.classList.remove('hidden');
+        taskList.classList.add('hidden');
     }
 }
 function closeTaskDetails(){
@@ -187,6 +340,21 @@ function closeAddTaskOverlay() {
     newTaskDescriptionInput.value = '';
 	colorTagSelect.value = 'none';
     newTaskDueDateInput.value = ''; // Clear date
+    newTaskDueTimeInput.value = '';
+    newTaskLocationInput.value = '';
+    newTaskPrioritySelect.value = 'low'; // Reset to default
+    newTaskRecurrenceSelect.value = 'none';
+    newTaskReminderInput.value = '';
+    newTaskNotesTextarea.value = '';
+     // Clear subtasks
+     newTaskSubtasksContainer.innerHTML = '<button type="button" id="add-new-subtask">Add Subtask</button>';
+     //Re-add the event listener
+     document.getElementById('add-new-subtask').addEventListener('click', addNewSubtask);
+    // Clear attachments
+    newTaskAttachmentsContainer.innerHTML = '<input type="text" class="new-task-attachment" placeholder="attachment.pdf"><button type="button" class="add-new-attachment">Add Attachment</button>';
+    //Re-add the event listeners
+    newTaskAttachmentsContainer.querySelector('.add-new-attachment').addEventListener('click', addNewAttachment.bind(null, newTaskAttachmentsContainer, 'new-task-attachment'));
+
 }
 function openEditTaskOverlay(taskId){
 	const task = tasks.find(t => t.id === taskId);
@@ -198,6 +366,45 @@ function openEditTaskOverlay(taskId){
 	editTaskDescriptionInput.value = task.description;
 	editColorTagSelect.value = task.colorTag;
     editTaskDueDateInput.value = task.dueDate; // Populate date
+    editTaskDueTimeInput.value = task.dueTime || '';  // Handle potentially missing values
+    editTaskLocationInput.value = task.location || '';
+    editTaskPrioritySelect.value = task.priority || 'low'; // Default to low
+    editTaskRecurrenceSelect.value = task.recurrence || 'none';
+    editTaskReminderInput.value = task.reminder || '';
+    editTaskNotesTextarea.value = task.notes || '';
+
+     // --- Populate subtasks ---
+     editTaskSubtasksContainer.innerHTML = '<button type="button" id="add-edit-subtask">Add Subtask</button>'; // Clear and add button
+      // Re-add the event listener
+    document.getElementById('add-edit-subtask').addEventListener('click', addEditSubtask);
+    if (task.subtasks && task.subtasks.length > 0) {
+        task.subtasks.forEach(subtask => {
+             const subtaskInput = document.createElement('input');
+            subtaskInput.type = 'text';
+            subtaskInput.value = subtask.text;
+            subtaskInput.dataset.subtaskId = subtask.id; // Store subtask ID
+            subtaskInput.classList.add("edit-subtask-input");
+            editTaskSubtasksContainer.appendChild(subtaskInput);
+        });
+    }
+   
+
+    // --- Populate attachments ---
+    editTaskAttachmentsContainer.innerHTML = '<input type="text" class="edit-task-attachment" placeholder="attachment.pdf"><button type="button" class="add-edit-attachment">Add Attachment</button>';
+     // Re-add the event listener
+     addEditAttachmentButtons.forEach(btn => {
+        btn.addEventListener('click', () => addNewAttachment(editTaskAttachmentsContainer, "edit-task-attachment"));
+    });
+    if (task.attachments && task.attachments.length > 0) {
+        task.attachments.forEach(attachment => {
+            const attachmentInput = document.createElement('input');
+            attachmentInput.type = 'text';
+            attachmentInput.value = attachment;
+            attachmentInput.classList.add('edit-task-attachment'); // Use class for styling
+            editTaskAttachmentsContainer.appendChild(attachmentInput);
+        });
+    }
+
 
 	editTaskOverlay.classList.remove('hidden');
 	editTaskOverlay.classList.add('visible');
@@ -213,6 +420,30 @@ function addNewTask() {
     const description = newTaskDescriptionInput.value.trim();
 	const colorTag = colorTagSelect.value;
     const dueDate = newTaskDueDateInput.value;
+    const dueTime = newTaskDueTimeInput.value;
+    const location = newTaskLocationInput.value.trim();
+    const priority = newTaskPrioritySelect.value;
+    const recurrence = newTaskRecurrenceSelect.value;
+    const reminder = newTaskReminderInput.value;
+    const notes = newTaskNotesTextarea.value.trim();
+
+      // --- Get subtasks ---
+    const subtasks = [];
+    const subtaskInputs = newTaskSubtasksContainer.querySelectorAll('input[type="text"]');
+    subtaskInputs.forEach(input => {
+        if (input.value.trim() !== '') { // Only add non-empty subtasks
+        subtasks.push({ id: generateId(), text: input.value.trim(), completed: false });
+        }
+    });
+    
+    // --- Get attachments ---
+    const attachments = [];
+    const attachmentInputs = newTaskAttachmentsContainer.querySelectorAll('.new-task-attachment')
+    attachmentInputs.forEach(input => {
+        if(input.value.trim() !== ''){
+            attachments.push(input.value.trim());
+        }
+    });
 
     if (!title || !dueDate) {
         alert('Please enter a task title and due date.');
@@ -220,18 +451,32 @@ function addNewTask() {
     }
 
     const newTask = {
-        id: generateId(), // Generate a unique ID
+        id: generateId(),
         title,
         description,
 		dueDate,  // Now using the date input value
+        dueTime,
+        location,
+        priority,
+        recurrence,
+        reminder,
+        notes,
+        subtasks,       // Add subtasks
+        attachments, // Add attachments
 		colorTag,
-        completed: false
+        completed: false,
+        pinned: false // Default to unpinned
     };
 
     tasks.push(newTask);
     saveTasks();
     displayTasks();
     closeAddTaskOverlay();
+
+    //Set reminder if exists and if is not dnd mode
+    if(reminder && !isDNDMode){
+        scheduleReminder(newTask);
+    }
 
 	showNotification(`New Task Added: ${newTask.title}`, {
         body: newTask.description,
@@ -246,16 +491,54 @@ function addNewTask() {
     });
 	hapticFeedback();
 }
+
 function editTask() {
     if (!currentlyEditingTaskId) return;
 
     const task = tasks.find(t => t.id === currentlyEditingTaskId);
-    if (!task) return;  // Should not happen, but check anyway
+    if (!task) return;
 
     const newTitle = editTaskTitleInput.value.trim();
     const newDescription = editTaskDescriptionInput.value.trim();
 	const newColorTag = editColorTagSelect.value;
     const newDueDate = editTaskDueDateInput.value;
+    const newDueTime = editTaskDueTimeInput.value;
+    const newLocation = editTaskLocationInput.value.trim();
+    const newPriority = editTaskPrioritySelect.value;
+    const newRecurrence = editTaskRecurrenceSelect.value;
+    const newReminder = editTaskReminderInput.value;
+    const newNotes = editTaskNotesTextarea.value.trim();
+
+      // --- Get edited subtasks ---
+    const newSubtasks = [];
+     const subtaskInputs = editTaskSubtasksContainer.querySelectorAll('input[type="text"]');
+        subtaskInputs.forEach(input => {
+        if (input.value.trim() !== '') { //only non-empty
+            //If id exists, it is an existing subtask
+            const subtaskId = input.dataset.subtaskId;
+            if(subtaskId){
+                // Find the existing subtask and update it
+                const existingSubtask = task.subtasks.find(sub => sub.id === subtaskId);
+                if(existingSubtask){
+                    newSubtasks.push({id: existingSubtask.id, text: input.value.trim(), completed: existingSubtask.completed});
+                }
+            } else {
+                //is new
+                 newSubtasks.push({ id: generateId(), text: input.value.trim(), completed: false });
+            }
+        }
+    });
+
+
+    // --- Get edited attachments ---
+      const newAttachments = [];
+    const attachmentInputs = editTaskAttachmentsContainer.querySelectorAll('.edit-task-attachment'); // Select by class
+    attachmentInputs.forEach(input => {
+        if (input.value.trim() !== '') {
+            newAttachments.push(input.value.trim());
+        }
+    });
+
 
     if (!newTitle || !newDueDate) {
         alert('Please enter a task title and due date.');
@@ -266,6 +549,22 @@ function editTask() {
     task.description = newDescription;
 	task.colorTag = newColorTag;
     task.dueDate = newDueDate;
+    task.dueTime = newDueTime;
+    task.location = newLocation;
+    task.priority = newPriority;
+    task.recurrence = newRecurrence;
+    task.reminder = newReminder;
+    task.notes = newNotes;
+    task.subtasks = newSubtasks; // Update subtasks
+    task.attachments = newAttachments;
+
+     // Handle reminder changes *NEW*
+     //If is not dnd mode
+    if (task.reminder !== newReminder && !isDNDMode) {
+        if (newReminder) {
+            scheduleReminder(task); // Schedule if a new reminder is set
+        }
+    }
 
     saveTasks();
     displayTasks();
@@ -273,42 +572,43 @@ function editTask() {
 	hapticFeedback();
 }
 
-function deleteTask(taskId) {
-
-    tasks = tasks.filter(task => task.id !== taskId);
-    saveTasks();
-    displayTasks();
-    closeTaskDetails();
-	hapticFeedback();
+// --- Add Subtask ---
+function addNewSubtask() {
+    const subtaskInput = document.createElement('input');
+    subtaskInput.type = 'text';
+    subtaskInput.placeholder = 'Enter subtask...';
+    subtaskInput.classList.add('new-subtask-input'); // Add a class
+    newTaskSubtasksContainer.insertBefore(subtaskInput, addNewSubtaskButton); //insert before
 }
 
-function toggleTaskCompletion(taskId) {
-    const task = tasks.find(t => t.id === taskId);
-    if (task) {
-        task.completed = !task.completed; // Toggle completion status
-        saveTasks();
-        displayTasks(); // Update the display
-		hapticFeedback();
+function addEditSubtask(){
+    const subtaskInput = document.createElement('input');
+    subtaskInput.type = 'text';
+    subtaskInput.placeholder = 'Enter subtask...';
+    subtaskInput.classList.add('edit-subtask-input');
+     editTaskSubtasksContainer.insertBefore(subtaskInput, addEditSubtaskButton); //insert before
+}
+
+// --- New function: Add New Attachment ---
+function addNewAttachment(container, className) { // Pass container and class
+    const attachmentInput = document.createElement('input');
+    attachmentInput.type = 'text';
+    attachmentInput.placeholder = 'attachment.pdf';
+    attachmentInput.classList.add(className); // Use the provided class
+    // Find the "Add Attachment" button WITHIN the container and insert before it.
+    const addButton = container.querySelector('button');
+    if (addButton) {
+        container.insertBefore(attachmentInput, addButton);
+    } else {
+        // Fallback: Append if no button is found (shouldn't happen, but good to handle)
+        container.appendChild(attachmentInput);
     }
 }
-
-// --- UI Interaction Functions ---
-
-function toggleSidebar() {
-    sidebar.classList.toggle('hidden');
-    mainContent.classList.toggle('sidebar-open');
-}
-
-function openSettingsOverlay() {
-    settingsOverlay.classList.remove('hidden');
-	settingsOverlay.classList.add('visible');
-}
-
 function closeSettingsOverlay() {
 	settingsOverlay.classList.add('hidden');
-	settingsOverlay.classList.remove('visible');
+	settingsOverlay.classList.remove('visible'); //  ADD THIS
 }
-// --- Filtering ---
+// --- Filtering -- (Modified)
 function filterTasks(filterType) {
     let filteredTasks = [];
 
@@ -332,6 +632,9 @@ function filterTasks(filterType) {
 				return dueDate >= tomorrow;
             });
             break;
+        case 'archived': //  Handle archived tasks
+            filteredTasks = archivedTasks;
+            break;
         // Add more cases for other filters (priority, location, etc.)
 		case 'profiles': //Just remove the active, do nothing else
             break;
@@ -342,21 +645,174 @@ function filterTasks(filterType) {
     displayTasks(filteredTasks); // Pass the filtered tasks to displayTasks
 }
 
-// --- Notifications ---
+// --- Toggle Task Completion ---(Modified)
+function toggleTaskCompletion(taskId) {
+    const task = tasks.find(t => t.id === taskId);
+    if (task) {
+        task.completed = !task.completed;
+		//Handle Recurrence
+		if(task.completed && task.recurrence !== 'none'){
+			let newDate = new Date(task.dueDate);
+			switch(task.recurrence){
+				case 'daily':
+					newDate.setDate(newDate.getDate() + 1);
+					break;
+				case 'weekly':
+					newDate.setDate(newDate.getDate() + 7);
+					break;
+				case 'monthly':
+					newDate.setMonth(newDate.getMonth() + 1);
+					break;
+			}
+			task.dueDate = newDate.toISOString().split('T')[0];
+
+			//reset reminder
+			if(task.reminder){
+				const originalReminder = new Date(task.reminder);
+				let newReminder = new Date(newDate); //based on new due date
+
+				newReminder.setHours(originalReminder.getHours());
+				newReminder.setMinutes(originalReminder.getMinutes());
+				newReminder.setSeconds(originalReminder.getSeconds());
+
+				task.reminder = newReminder.toISOString().substring(0, 16); //format
+				scheduleReminder(task);
+			}
+			//if there are subtasks, reset
+			if(task.subtasks && task.subtasks.length > 0){
+				task.subtasks.forEach(sub => sub.completed = false);
+			}
+		}
+        saveTasks();
+        displayTasks();  //  Call displayTasks to update *everything*
+		hapticFeedback();
+    }
+}
+
+ // --- Toggle Focus Mode ---
+function toggleFocusMode() {
+    isFocusMode = !isFocusMode;
+    document.body.classList.toggle('focus-mode', isFocusMode);
+	focusModeToggle.querySelector('span').textContent = isFocusMode? 'visibility' : 'center_focus_strong'; // Update icon
+    // If entering focus mode, and a task is selected, show it.
+    if (isFocusMode && taskDetailsTitle.textContent) { //Check for selected task
+		const taskId = tasks.find(t => t.title === taskDetailsTitle.textContent)?.id;
+        showTaskDetails(taskId); // Re-show details (to apply focus mode styles)
+    } else {
+		closeTaskDetails();
+	}
+	hapticFeedback();
+}
+
+// --- Toggle DND Mode ---
+function toggleDNDMode() {
+    isDNDMode = !isDNDMode;
+    dndModeToggle.querySelector('span').textContent = isDNDMode ? 'do_not_disturb_off' : 'do_not_disturb_on'; //update
+	hapticFeedback();
+}
+
+ // --- Toggle Pinned Task ---
+ function togglePinTask(taskId) {
+    const task = tasks.find(t => t.id === taskId);
+    if (task) {
+        task.pinned = !task.pinned; // Toggle the pinned state
+        saveTasks();
+        displayTasks(); // Re-render the task list
+		hapticFeedback();
+    }
+}
+
+// --- Inside deleteTask() --- (Corrected)
+function deleteTask(taskId) {
+    //Check if it is in tasks or archived
+    const taskInTasks = tasks.find(task => task.id === taskId);
+    const taskInArchive = archivedTasks.find(t => t.id ===taskId);
+
+    if(taskInTasks){
+        tasks = tasks.filter(task => task.id !== taskId);
+    } else if(taskInArchive){
+        archivedTasks = archivedTasks.filter(task => task.id !== taskId);
+    }
+
+    saveTasks();
+    displayTasks();
+    closeTaskDetails();
+	hapticFeedback();
+}
+
+// --- Archive/Unarchive Task ---
+function archiveTask(taskId, action) {
+      if (action === 'archive') {
+        const taskIndex = tasks.findIndex(t => t.id === taskId);
+        if (taskIndex > -1) {
+            const taskToArchive = tasks.splice(taskIndex, 1)[0]; // Remove from tasks
+            archivedTasks.push(taskToArchive); // Add to archivedTasks
+        }
+    } else if (action === 'unarchive') {
+         const taskIndex = archivedTasks.findIndex(t => t.id === taskId);
+        if (taskIndex > -1) {
+            const taskToUnarchive = archivedTasks.splice(taskIndex, 1)[0]; // Remove from archived
+            tasks.push(taskToUnarchive); // Add back to tasks
+        }
+    }
+    saveTasks();
+    displayTasks();
+    closeTaskDetails();
+}
+
+// --- Sort Tasks ---
+function sortTasks(taskListToSort) { //sort a list passed as an argument
+    switch(sortMethod){
+        case 'dueDate':
+            return taskListToSort.sort((a,b) => new Date(a.dueDate) - new Date(b.dueDate));
+        case 'priority':
+            //sort high > medium > low
+             return taskListToSort.sort((a, b) => {
+                const priorityOrder = { high: 3, medium: 2, low: 1 };
+                return priorityOrder[b.priority] - priorityOrder[a.priority];
+            });
+        case 'title':
+            return taskListToSort.sort((a,b) => a.title.localeCompare(b.title));
+        default:
+            return taskListToSort;
+    }
+}
+
+// --- Notifications --- (Corrected)
 function showNotification(title, options) {
-    if ('Notification' in window && Notification.permission === 'granted') {
-        navigator.serviceWorker.getRegistration().then(registration => { // Use getRegistration
-            if (registration) {
-                registration.showNotification(title, options);
-            } else {
-                console.error('No service worker registration found.');
-            }
+   if ('Notification' in window && Notification.permission === 'granted' && !isDNDMode) {
+        navigator.serviceWorker.ready.then(registration => { // Use .ready
+            registration.showNotification(title, options);
+
+        }).catch(error => { // Added error handling
+                console.error("Error showing notification via service worker:", error);
         });
     }
 	else {
-		 // Notifications not supported or not granted
-        console.log("Notifications are not supported");
+				 // Notifications not supported or not granted, or DND mode
+        console.log("Notifications are not supported, not granted, or DND mode is active.");
 	}
+}
+
+// --- Schedule Reminder --- (Corrected)
+function scheduleReminder(task) {
+    if (task.reminder && !isDNDMode) {
+        const now = new Date();
+        const reminderTime = new Date(task.reminder);
+
+        if(reminderTime > now){ //don't shcedule if in the past
+            const timeUntilReminder = reminderTime.getTime() - now.getTime();
+
+			setTimeout(() => {
+				showNotification(`Reminder: ${task.title}`, {
+                    body: task.description,
+                    icon: 'images/icon-96x96.png',
+                    tag: `reminder-${task.id}`, // Unique tag
+                    data: { taskId: task.id }
+                });
+			}, timeUntilReminder);
+        }
+    }
 }
 // --- Haptic Feedback ---
 function hapticFeedback() {
@@ -373,7 +829,17 @@ function attachTaskCardListeners() {
     taskCards.forEach(card => {
         card.addEventListener('click', () => {
             const taskId = card.dataset.taskId; // Corrected
-            showTaskDetails(taskId);
+			// If focus mode is on, *don't* toggle.  Just show.
+            if (isFocusMode) {
+                showTaskDetails(taskId);
+            } else {
+                // Original toggle behavior
+                if (taskDetails.classList.contains('hidden') || taskDetailsTitle.textContent !== card.querySelector('h3').textContent.replace('📌','').trim()) { //compare
+                    showTaskDetails(taskId);
+                } else {
+                    closeTaskDetails(); //  close if it's already open *and* showing the same task
+                }
+            }
         });
     });
 }
@@ -389,9 +855,10 @@ document.getElementById('cancel-add-task').addEventListener('click', closeAddTas
 
 //---Edit Task Button (from details view)---
 document.getElementById('edit-task').addEventListener('click', () => {
-	const taskId = tasks.find(t => t.title === taskDetailsTitle.textContent)?.id; // Get ID from displayed task
+    // Get task ID from the currently displayed task *in the details section*.
+    const taskId = tasks.find(t => t.title === taskDetailsTitle.textContent)?.id || archivedTasks.find(t => t.title === taskDetailsTitle.textContent)?.id;
     if (taskId) {
-        closeTaskDetails(); // Close details *before* opening edit
+        closeTaskDetails();
         openEditTaskOverlay(taskId);
     }
 });
@@ -404,7 +871,7 @@ document.getElementById('cancel-edit-task').addEventListener('click', closeEditT
 
 // --- Delete Task Button (from details view) ---
 document.getElementById('delete-task').addEventListener('click', () => {
-    const taskId = tasks.find(t => t.title === taskDetailsTitle.textContent)?.id; // Get ID from displayed task.  Better than using a global.
+	const taskId = tasks.find(t => t.title === taskDetailsTitle.textContent)?.id || archivedTasks.find(t => t.title === taskDetailsTitle.textContent)?.id;
     if (taskId) {
         deleteTask(taskId);
     }
@@ -499,9 +966,13 @@ navigator.serviceWorker.addEventListener('message', event => {
                 const task = tasks[taskIndex];
                 // Convert the existing due date string to a Date object (if it exists)
                 let dueDate = task.dueDate ? new Date(task.dueDate) : new Date();
+                let dueTime = task.dueTime ? task.dueTime.split(':') : ['09','00']; //default time
 
+				dueDate.setHours(parseInt(dueTime[0], 10));
+				dueDate.setMinutes(parseInt(dueTime[1], 10));
                 dueDate.setMinutes(dueDate.getMinutes() + 15); //Snooze
                 task.dueDate = dueDate.toISOString().split('T')[0]; //back to string
+                task.dueTime = `${String(dueDate.getHours()).padStart(2, '0')}:${String(dueDate.getMinutes()).padStart(2, '0')}` //add correct format
                 saveTasks();
                 displayTasks(); // Update the task list
             }
@@ -517,6 +988,43 @@ navigator.serviceWorker.addEventListener('message', event => {
 				editTaskDescriptionInput.value = task.description;
 				editColorTagSelect.value = task.colorTag;
                 editTaskDueDateInput.value = task.dueDate;
+                editTaskDueTimeInput.value = task.dueTime;
+                editTaskLocationInput.value = task.location;
+                editTaskPrioritySelect.value = task.priority;
+                editTaskRecurrenceSelect.value = task.recurrence;
+                editTaskReminderInput.value = task.reminder;
+                editTaskNotesTextarea.value = task.notes
+                // --- Populate subtasks ---
+                editTaskSubtasksContainer.innerHTML = '<button type="button" id="add-edit-subtask">Add Subtask</button>'; // Clear and add button
+                // Re-add the event listener
+                document.getElementById('add-edit-subtask').addEventListener('click', addEditSubtask);
+                if (task.subtasks && task.subtasks.length > 0) {
+                    task.subtasks.forEach(subtask => {
+                        const subtaskInput = document.createElement('input');
+                        subtaskInput.type = 'text';
+                        subtaskInput.value = subtask.text;
+                        subtaskInput.dataset.subtaskId = subtask.id; // Store subtask ID
+                        subtaskInput.classList.add("edit-subtask-input");
+                        editTaskSubtasksContainer.appendChild(subtaskInput);
+                    });
+                }
+
+
+                // --- Populate attachments ---
+                editTaskAttachmentsContainer.innerHTML = '<input type="text" class="edit-task-attachment" placeholder="attachment.pdf"><button type="button" class="add-edit-attachment">Add Attachment</button>';
+                // Re-add the event listener
+                addEditAttachmentButtons.forEach(btn => {
+                    btn.addEventListener('click', () => addNewAttachment(editTaskAttachmentsContainer, "edit-task-attachment"));
+                });
+                if (task.attachments && task.attachments.length > 0) {
+                    task.attachments.forEach(attachment => {
+                        const attachmentInput = document.createElement('input');
+                        attachmentInput.type = 'text';
+                        attachmentInput.value = attachment;
+                        attachmentInput.classList.add('edit-task-attachment'); // Use class for styling
+                        editTaskAttachmentsContainer.appendChild(attachmentInput);
+                    });
+                }
 
 				editTaskOverlay.classList.remove('hidden');
            }
@@ -548,4 +1056,66 @@ navigator.serviceWorker.addEventListener('message', event => {
 
 		notification.close(); // Close the notification after handling the action
 	}
+});
+
+//Event Listeners
+
+// --- Search Input (Added) ---
+searchInput.addEventListener('input', () => {
+    const searchTerm = searchInput.value.trim().toLowerCase();
+    const filteredTasks = tasks.filter(task =>
+        task.title.toLowerCase().includes(searchTerm) ||
+        task.description.toLowerCase().includes(searchTerm)
+    );
+    displayTasks(filteredTasks);
+});
+
+// --- Sort Button (Added) ---
+sortButton.addEventListener('click', () => {
+   // Cycle through sort methods: dueDate -> priority -> title -> dueDate
+    if (sortMethod === 'dueDate') {
+        sortMethod = 'priority';
+    } else if (sortMethod === 'priority') {
+        sortMethod = 'title';
+    } else {
+        sortMethod = 'dueDate';
+    }
+    displayTasks(); // Re-display with the new sort order
+	hapticFeedback();
+});
+
+//Focus and DND buttons
+focusModeToggle.addEventListener('click', toggleFocusMode);
+dndModeToggle.addEventListener('click', toggleDNDMode);
+
+// --- Archive Task Button (Added) ---
+archiveTaskButton.addEventListener('click', (event) => {
+    const taskId = event.target.dataset.taskId;
+    const action = event.target.dataset.action; // 'archive' or 'unarchive'
+    if (taskId && action) {
+        archiveTask(taskId, action);
+    }
+});
+
+// --- Toolbar Customization (Added) ---
+showSearchCheckbox.addEventListener('change', saveSettings);
+showSortCheckbox.addEventListener('change', saveSettings);
+showFocusModeCheckbox.addEventListener('change', saveSettings);
+showDndModeCheckbox.addEventListener('change', saveSettings);
+
+// --- Add Subtask Button ---
+addNewSubtaskButton.addEventListener('click', addNewSubtask);
+addEditSubtaskButton.addEventListener('click', addEditSubtask);
+
+// --- Add Attachment Buttons (using event delegation) --- Corrected
+newTaskAttachmentsContainer.addEventListener('click', (event) => {
+    if (event.target.classList.contains('add-new-attachment')) {
+        addNewAttachment(newTaskAttachmentsContainer, 'new-task-attachment');
+    }
+});
+
+editTaskAttachmentsContainer.addEventListener('click', (event) => {
+     if (event.target.classList.contains('add-edit-attachment')) {
+        addNewAttachment(editTaskAttachmentsContainer, 'edit-task-attachment');
+    }
 });
