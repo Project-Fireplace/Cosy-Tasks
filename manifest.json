@@ -1,21 +1,23 @@
 {
     "name": "Cosy Tasks",
     "short_name": "CosyTasks",
-    "start_url": "index.html",
+    "description": "Your friendly, feature-rich PWA Task Manager.",
+    "start_url": "/",
     "display": "standalone",
-    "background_color": "#e67e22",
-    "theme_color": "#e67e22",
-    "description": "A playful and feature-rich task management PWA.",
+    "background_color": "#f8f9fa", /* Match light theme */
+    "theme_color": "#6750a4", /* Match light theme accent */
+    "orientation": "any",
     "icons": [
+        { "src": "icons/icon-72x72.png", "sizes": "72x72", "type": "image/png" },
+        { "src": "icons/icon-96x96.png", "sizes": "96x96", "type": "image/png" },
+        { "src": "icons/icon-144x144.png", "sizes": "144x144", "type": "image/png" },
+        { "src": "icons/icon-192x192.png", "sizes": "192x192", "type": "image/png" },
+        { "src": "icons/icon-512x512.png", "sizes": "512x512", "type": "image/png" },
         {
-            "src": "icon-192.png",
-            "sizes": "192x192",
-            "type": "image/png"
-        },
-        {
-            "src": "icon-512.png",
-            "sizes": "512x512",
-            "type": "image/png"
+          "src": "icons/maskable_icon.png",
+          "sizes": "192x192",
+          "type": "image/png",
+          "purpose": "maskable" /* Important for adaptive icons */
         }
     ]
 }
