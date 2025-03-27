@@ -3,67 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#ffffff"> <!-- Update dynamically with theme -->
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f8f0f8"> <!-- Light theme surface -->
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1c1b1f">  <!-- Dark theme surface -->
     <meta name="description" content="Cosy Tasks - A simple, beautiful, and feature-rich task manager PWA.">
 
     <title>Cosy Tasks</title>
 
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <!-- Material Icons -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined"> <!-- Using Outlined version -->
+    <!-- Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="css/style.css">
     <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icons/icon-192x192.png"> <!-- Basic iOS support -->
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
 
 </head>
 <body>
-    <header>
-        <h1><span class="material-icons">check_circle</span> Cosy Tasks</h1>
-        <button id="settings-button" aria-label="Settings"><span class="material-icons">settings</span></button>
-        <!-- Add more header controls like search? -->
+    <header class="app-header">
+        <div class="logo">
+             <span class="material-icons-outlined logo-icon">check_circle</span>
+             <h1>Cosy Tasks</h1>
+        </div>
+        <button id="settings-button" class="icon-button" aria-label="Settings">
+            <span class="material-icons-outlined">settings</span>
+        </button>
     </header>
 
-    <aside class="sidebar">
-        <!-- Navigation for Projects, Filters -->
-        <nav id="project-list">
+    <aside class="sidebar glass">
+        <nav id="project-nav">
             <h2>Projects</h2>
-            <ul><!-- Dynamically Populated --></ul>
-            <button id="add-project-button"><span class="material-icons">add</span> New Project</button>
+            <ul id="project-list">
+                <!-- Dynamically Populated Projects -->
+                <li><button class="project-button"><span class="material-icons-outlined">list_alt</span> Project Alpha</button></li>
+                <li><button class="project-button active"><span class="material-icons-outlined">list_alt</span> Inbox</button></li>
+            </ul>
+            <button id="add-project-button" class="add-button">
+                <span class="material-icons-outlined">add</span> New Project
+            </button>
         </nav>
-        <nav id="filter-list">
+
+        <hr class="divider">
+
+        <nav id="filter-nav">
              <h2>Filters</h2>
-             <ul>
-                 <li><button data-filter="all">All Tasks</button></li>
-                 <li><button data-filter="active">Active</button></li>
-                 <li><button data-filter="completed">Completed</button></li>
-                 <li><button data-filter="today">Due Today</button></li>
-                 <!-- Add more filters -->
+             <ul id="filter-list">
+                 <li><button class="filter-button active" data-filter="all"><span class="material-icons-outlined">inbox</span> All Tasks</button></li>
+                 <li><button class="filter-button" data-filter="active"><span class="material-icons-outlined">lightbulb</span> Active</button></li>
+                 <li><button class="filter-button" data-filter="completed"><span class="material-icons-outlined">task_alt</span> Completed</button></li>
+                 <li><button class="filter-button" data-filter="today"><span class="material-icons-outlined">today</span> Due Today</button></li>
+                 <li><button class="filter-button" data-filter="upcoming"><span class="material-icons-outlined">event_upcoming</span> Upcoming</button></li>
              </ul>
         </nav>
     </aside>
 
-    <main>
-        <div id="quick-add-container">
+    <main class="main-content">
+        <div id="quick-add-container" class="quick-add">
+            <span class="material-icons-outlined quick-add-icon">add_circle_outline</span>
             <input type="text" id="quick-add-input" placeholder="Add a new task...">
-            <button id="quick-add-button" aria-label="Add Task"><span class="material-icons">add_circle</span></button>
+            <button id="quick-add-button" class="icon-button accent" aria-label="Add Task">
+                <span class="material-icons-outlined">add</span>
+            </button>
+            <!-- Maybe add due date/project quick selectors here later -->
         </div>
 
-        <section id="task-list-container">
+        <section id="task-list-container" class="task-area card">
             <h2 id="current-view-title">All Tasks</h2>
             <ul id="task-list">
-                <!-- Tasks will be rendered here by JS -->
+                <!-- Tasks Rendered Here -->
+                 <li class="empty-state">
+                    <div class="empty-state-visual">
+                         <span class="material-icons-outlined">check_box_outline_blank</span>
+                    </div>
+                    <p>No tasks found!</p>
+                    <p class="empty-state-subtle">Add a task using the bar above.</p>
+                </li>
+                <!-- Example Task Item Structure (for CSS) -->
+                 <!--
+                 <li class="task-item" data-task-id="1">
+                     <label class="checkbox-container">
+                         <input type="checkbox" aria-label="Mark task complete">
+                         <span class="checkmark"></span>
+                     </label>
+                     <div class="task-details">
+                         <span class="task-title">Design the new homepage</span>
+                         <div class="task-meta">
+                             <span class="task-due-date"><span class="material-icons-outlined">event</span> Mar 29</span>
+                             <span class="task-project"><span class="material-icons-outlined">list_alt</span> Inbox</span>
+                         </div>
+                     </div>
+                     <div class="task-actions">
+                         <button class="icon-button" aria-label="Edit Task"><span class="material-icons-outlined">edit</span></button>
+                         <button class="icon-button danger" aria-label="Delete Task"><span class="material-icons-outlined">delete_outline</span></button>
+                     </div>
+                 </li>
+                 <li class="task-item completed" data-task-id="2"> ... </li>
+                 -->
             </ul>
         </section>
     </main>
 
-    <footer>
-        <p>Cosy Tasks - Your friendly PWA Task Manager</p>
-    </footer>
-
-    <!-- Modals (Settings, Task Details, Confirmations) - Initially hidden -->
-    <div id="settings-modal" class="modal" hidden> <!-- Basic modal structure -->
+    <!-- Modals etc. -->
+    <div id="settings-modal" class="modal glass" hidden>
         <div class="modal-content">
-            <h2>Settings</h2>
-            <!-- Theme switcher, Data options etc -->
-            <button class="close-modal-button" aria-label="Close Settings"><span class="material-icons">close</span></button>
+             <div class="modal-header">
+                 <h2>Settings</h2>
+                 <button class="icon-button close-modal-button" aria-label="Close Settings"><span class="material-icons-outlined">close</span></button>
+             </div>
+             <div class="modal-body">
+                <!-- Settings content here -->
+                 <p>Theme, Data Management, etc.</p>
+             </div>
         </div>
     </div>
 
