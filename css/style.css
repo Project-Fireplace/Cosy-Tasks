@@ -1,114 +1,763 @@
-/* Import Material Icons */
-@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
-/* Consider importing a nice font */
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+/* Import Icons & Font */
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons+Outlined');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
+/* ------------------------- */
+/* --- THEME VARIABLES --- */
+/* ------------------------- */
 :root {
-    /* Default Theme (Light - Material You Inspired Palette Example) */
-    --background-primary: #f8f9fa; /* Light background */
-    --background-secondary: #ffffff; /* Card background */
-    --background-glass: rgba(255, 255, 255, 0.7); /* Glass effect */
-    --text-primary: #212529;
-    --text-secondary: #6c757d;
-    --accent-color: #6750a4; /* Example Material You purple */
-    --accent-color-contrast: #ffffff; /* Text on accent */
-    --border-color: #dee2e6;
-    --shadow-color: rgba(0, 0, 0, 0.1);
-    --completed-text: #888;
+    /* Adaptation of Material You Neutral Palette (Light) */
+    --primary-light: #6750a4;
+    --on-primary-light: #ffffff;
+    --primary-container-light: #eaddff;
+    --on-primary-container-light: #21005d;
+    --secondary-light: #625b71;
+    --on-secondary-light: #ffffff;
+    --secondary-container-light: #e8def8;
+    --on-secondary-container-light: #1d192b;
+    --tertiary-light: #7d5260; /* Example accent */
+    --error-light: #b3261e;
+    --on-error-light: #ffffff;
+    --background-light: #fef7ff; /* Slightly off-white */
+    --on-background-light: #1c1b1f;
+    --surface-light: #fef7ff;
+    --on-surface-light: #1c1b1f;
+    --surface-variant-light: #e7e0ec;
+    --on-surface-variant-light: #49454f;
+    --outline-light: #79747e;
+    --shadow-color-light: rgba(0, 0, 0, 0.15);
+    --surface-container-lowest-light: #ffffff;
+    --surface-container-low-light: #f7f2fa;
+    --surface-container-light: #f3edf7;
+    --surface-container-high-light: #ede8f1;
+    --surface-container-highest-light: #e6e0e9;
 
-    --font-family: 'Roboto', sans-serif;
-    --border-radius: 12px; /* Softer corners */
-    --glass-blur: 10px;
+    /* Glass */
+    --glass-bg-light: rgba(243, 237, 247, 0.7); /* surface-container-light with alpha */
+    --glass-blur: 12px;
+
+    /* Dimensions & Effects */
+    --border-radius-small: 4px;
+    --border-radius-medium: 8px;
+    --border-radius-large: 16px;
+    --border-radius-xlarge: 28px;
+    --border-radius-full: 50px;
+
+    --shadow-1: 0 1px 2px 0 var(--shadow-color);
+    --shadow-2: 0 3px 6px 0 var(--shadow-color), 0 2px 4px 0 var(--shadow-color);
+    --shadow-3: 0 10px 20px 0 var(--shadow-color), 0 6px 6px 0 var(--shadow-color);
+    --shadow-4: 0 15px 30px 0 var(--shadow-color), 0 10px 10px 0 var(--shadow-color);
+
+    --transition-fast: 0.15s ease-out;
+    --transition-medium: 0.3s ease-out;
+
+    /* Default to light theme */
+    color-scheme: light;
+    --primary: var(--primary-light);
+    --on-primary: var(--on-primary-light);
+    --primary-container: var(--primary-container-light);
+    --on-primary-container: var(--on-primary-container-light);
+    --secondary: var(--secondary-light);
+    --on-secondary: var(--on-secondary-light);
+    --secondary-container: var(--secondary-container-light);
+    --on-secondary-container: var(--on-secondary-container-light);
+    --tertiary: var(--tertiary-light);
+    --error: var(--error-light);
+    --on-error: var(--on-error-light);
+    --background: var(--background-light);
+    --on-background: var(--on-background-light);
+    --surface: var(--surface-light);
+    --on-surface: var(--on-surface-light);
+    --surface-variant: var(--surface-variant-light);
+    --on-surface-variant: var(--on-surface-variant-light);
+    --outline: var(--outline-light);
+    --shadow-color: var(--shadow-color-light);
+    --surface-container-lowest: var(--surface-container-lowest-light);
+    --surface-container-low: var(--surface-container-low-light);
+    --surface-container: var(--surface-container-light);
+    --surface-container-high: var(--surface-container-high-light);
+    --surface-container-highest: var(--surface-container-highest-light);
+    --glass-bg: var(--glass-bg-light);
 }
 
-/* Add .dark-theme class to body or html for dark mode */
 .dark-theme {
-    --background-primary: #121212;
-    --background-secondary: #1e1e1e;
-    --background-glass: rgba(30, 30, 30, 0.7);
-    --text-primary: #e0e0e0;
-    --text-secondary: #a0a0a0;
-    /* --accent-color needs a dark mode version */
-    --accent-color: #d0bcff; /* Example Material You purple for dark */
-    --accent-color-contrast: #381e72;
-    --border-color: #444;
-    --shadow-color: rgba(0, 0, 0, 0.3);
-    --completed-text: #666;
+    /* Adaptation of Material You Neutral Palette (Dark) */
+    --primary-dark: #d0bcff;
+    --on-primary-dark: #381e72;
+    --primary-container-dark: #4f378b;
+    --on-primary-container-dark: #eaddff;
+    --secondary-dark: #ccc2dc;
+    --on-secondary-dark: #332d41;
+    --secondary-container-dark: #4a4458;
+    --on-secondary-container-dark: #e8def8;
+    --tertiary-dark: #efb8c8; /* Example accent */
+    --error-dark: #f2b8b5;
+    --on-error-dark: #601410;
+    --background-dark: #141218; /* Darker background */
+    --on-background-dark: #e6e1e5;
+    --surface-dark: #141218;
+    --on-surface-dark: #e6e1e5;
+    --surface-variant-dark: #49454f;
+    --on-surface-variant-dark: #cac4d0;
+    --outline-dark: #938f99;
+    --shadow-color-dark: rgba(0, 0, 0, 0.3);
+    --surface-container-lowest-dark: #0f0d13;
+    --surface-container-low-dark: #1d1b20;
+    --surface-container-dark: #211f26;
+    --surface-container-high-dark: #2b2930;
+    --surface-container-highest-dark: #36343b;
+
+    /* Glass */
+    --glass-bg-dark: rgba(33, 31, 38, 0.7); /* surface-container-dark with alpha */
+
+    /* Apply dark theme variables */
+    color-scheme: dark;
+    --primary: var(--primary-dark);
+    --on-primary: var(--on-primary-dark);
+    --primary-container: var(--primary-container-dark);
+    --on-primary-container: var(--on-primary-container-dark);
+    --secondary: var(--secondary-dark);
+    --on-secondary: var(--on-secondary-dark);
+    --secondary-container: var(--secondary-container-dark);
+    --on-secondary-container: var(--on-secondary-container-dark);
+    --tertiary: var(--tertiary-dark);
+    --error: var(--error-dark);
+    --on-error: var(--on-error-dark);
+    --background: var(--background-dark);
+    --on-background: var(--on-background-dark);
+    --surface: var(--surface-dark);
+    --on-surface: var(--on-surface-dark);
+    --surface-variant: var(--surface-variant-dark);
+    --on-surface-variant: var(--on-surface-variant-dark);
+    --outline: var(--outline-dark);
+    --shadow-color: var(--shadow-color-dark);
+    --surface-container-lowest: var(--surface-container-lowest-dark);
+    --surface-container-low: var(--surface-container-low-dark);
+    --surface-container: var(--surface-container-dark);
+    --surface-container-high: var(--surface-container-high-dark);
+    --surface-container-highest: var(--surface-container-highest-dark);
+    --glass-bg: var(--glass-bg-dark);
 }
 
-/* Basic Reset & Body Styling */
-* { box-sizing: border-box; margin: 0; padding: 0; }
+/* ------------------------- */
+/* --- BASE & LAYOUT --- */
+/* ------------------------- */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
 
 body {
-    font-family: var(--font-family);
-    background-color: var(--background-primary);
-    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    background-color: var(--background);
+    color: var(--on-background);
     line-height: 1.6;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-/* Glassmorphism Example (Apply to elements like modals, sidebars) */
-.glass {
-    background: var(--background-glass);
-    backdrop-filter: blur(var(--glass-blur));
-    -webkit-backdrop-filter: blur(var(--glass-blur)); /* Safari */
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-    box-shadow: 0 4px 15px var(--shadow-color);
-}
-
-/* Basic Layout Example (Needs Refinement) */
-body {
+    font-size: 16px; /* Base font size */
     display: grid;
+    grid-template-columns: 280px 1fr; /* Sidebar width */
+    grid-template-rows: auto 1fr; /* Header, Main content */
     grid-template-areas:
         "header header"
-        "sidebar main"
-        "footer footer";
-    grid-template-columns: 250px 1fr; /* Adjust sidebar width */
-    grid-template-rows: auto 1fr auto;
-}
-header { grid-area: header; /* Add styling */ }
-.sidebar { grid-area: sidebar; padding: 1rem; /* Apply .glass? */ }
-main { grid-area: main; padding: 1rem; overflow-y: auto; } /* Important for scrolling */
-footer { grid-area: footer; text-align: center; padding: 0.5rem; }
-
-
-/* Task Item Example */
-#task-list li {
-    background-color: var(--background-secondary);
-    margin-bottom: 0.8rem;
-    padding: 0.8rem 1rem;
-    border-radius: var(--border-radius);
-    box-shadow: 0 2px 5px var(--shadow-color);
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-    transition: box-shadow 0.2s ease;
-}
-#task-list li:hover {
-    box-shadow: 0 4px 10px var(--shadow-color);
-}
-#task-list li.completed {
-    opacity: 0.7;
-}
-#task-list li.completed .task-title {
-    text-decoration: line-through;
-    color: var(--completed-text);
+        "sidebar main";
+    min-height: 100vh;
+    transition: background-color var(--transition-medium), color var(--transition-medium);
 }
 
-/* Add styles for inputs, buttons, modals, icons, responsive design etc */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--on-surface);
+}
 
-/* Accessibility */
-*:focus-visible {
-    outline: 2px solid var(--accent-color);
-    outline-offset: 2px;
+button {
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+    background: none;
+    color: inherit;
+}
+
+input {
+    font-family: inherit;
+    color: inherit;
+}
+
+ul {
+    list-style: none;
+}
+
+a {
+    color: var(--primary);
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: underline;
 }
 
 /* Material Icons base style */
-.material-icons {
-    vertical-align: middle; /* Align icons better with text */
-    font-size: inherit; /* Match surrounding text size */
+.material-icons-outlined {
+    font-size: 1.25rem; /* Default icon size */
+    vertical-align: middle;
+    line-height: 1; /* Prevent extra space */
+     /* Fix slight baseline misalignment */
+     display: inline-block;
+     width: 1em;
+     height: 1em;
+     overflow: hidden;
+     font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Scrollbar styling (optional, for aesthetics) */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: var(--surface-container-low);
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb {
+    background-color: var(--outline);
+    border-radius: 4px;
+    border: 2px solid var(--surface-container-low); /* Creates padding */
+}
+::-webkit-scrollbar-thumb:hover {
+    background-color: var(--on-surface-variant);
+}
+
+
+/* ------------------------- */
+/* --- HEADER --- */
+/* ------------------------- */
+.app-header {
+    grid-area: header;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    background-color: var(--surface-container);
+    border-bottom: 1px solid var(--outline-variant, var(--outline)); /* Use outline-variant if defined */
+    box-shadow: var(--shadow-1);
+    z-index: 10; /* Keep above sidebar scroll */
+}
+
+.app-header .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+.app-header .logo-icon {
+    font-size: 1.8rem;
+    color: var(--primary);
+}
+.app-header h1 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--on-surface);
+}
+
+/* ------------------------- */
+/* --- SIDEBAR --- */
+/* ------------------------- */
+.sidebar {
+    grid-area: sidebar;
+    padding: 1.5rem 1rem; /* More vertical padding */
+    border-right: 1px solid var(--outline);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    overflow-y: auto; /* Enable scrolling */
+}
+
+.sidebar h2 {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--on-surface-variant);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.sidebar nav ul {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem; /* Small gap between items */
+}
+
+.project-button,
+.filter-button {
+    display: flex;
+    align-items: center;
+    gap: 1rem; /* Increased gap for icon */
+    width: 100%;
+    text-align: left;
+    padding: 0.6rem 0.75rem; /* Consistent padding */
+    border-radius: var(--border-radius-full); /* Fully rounded */
+    font-size: 0.95rem;
+    font-weight: 500; /* Slightly bolder */
+    color: var(--on-surface-variant);
+    transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+.project-button .material-icons-outlined,
+.filter-button .material-icons-outlined {
+    font-size: 1.2rem;
+    color: var(--on-surface-variant);
+    transition: color var(--transition-fast);
+}
+
+.project-button:hover,
+.filter-button:hover {
+    background-color: var(--surface-container-high);
+    color: var(--on-surface);
+}
+.project-button:hover .material-icons-outlined,
+.filter-button:hover .material-icons-outlined {
+    color: var(--on-surface);
+}
+
+/* Active State */
+.project-button.active,
+.filter-button.active {
+    background-color: var(--secondary-container);
+    color: var(--on-secondary-container);
+    font-weight: 600;
+}
+.project-button.active .material-icons-outlined,
+.filter-button.active .material-icons-outlined {
+    color: var(--on-secondary-container);
+     /* Fill icon when active */
+     font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+
+#add-project-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    width: auto; /* Fit content */
+    margin: 1rem auto 0 auto; /* Center */
+    padding: 0.8rem 1.5rem;
+    border-radius: var(--border-radius-large);
+    background-color: var(--primary-container);
+    color: var(--on-primary-container);
+    font-size: 0.95rem;
+    font-weight: 600;
+    box-shadow: var(--shadow-1);
+    transition: box-shadow var(--transition-fast), background-color var(--transition-fast);
+}
+#add-project-button:hover {
+     box-shadow: var(--shadow-2);
+     filter: brightness(1.05);
+}
+#add-project-button .material-icons-outlined {
+    font-size: 1.2rem;
+}
+
+.divider {
+    border: none;
+    height: 1px;
+    background-color: var(--outline);
+    opacity: 0.5;
+    margin: 0 0.75rem; /* Match padding */
+}
+
+/* ------------------------- */
+/* --- MAIN CONTENT --- */
+/* ------------------------- */
+.main-content {
+    grid-area: main;
+    padding: 2rem 2.5rem;
+    overflow-y: auto; /* Allow scrolling */
+}
+
+/* Quick Add Bar */
+.quick-add {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: var(--surface-container-high);
+    padding: 0.5rem 0.75rem 0.5rem 1.25rem; /* More padding left for icon */
+    border-radius: var(--border-radius-full);
+    box-shadow: var(--shadow-2);
+    margin-bottom: 2.5rem;
+    position: relative; /* For potential future additions like date picker */
+}
+.quick-add-icon {
+     color: var(--on-surface-variant);
+     margin-right: 0.5rem; /* Space after icon */
+     font-size: 1.4rem;
+}
+#quick-add-input {
+    flex-grow: 1;
+    border: none;
+    outline: none;
+    font-size: 1rem;
+    background: none;
+    color: var(--on-surface);
+    padding: 0.5rem 0; /* Vertical padding */
+}
+#quick-add-input::placeholder {
+    color: var(--on-surface-variant);
+    opacity: 1;
+}
+#quick-add-button {
+    flex-shrink: 0; /* Prevent button from shrinking */
+    width: 38px;
+    height: 38px;
+}
+#quick-add-button .material-icons-outlined {
+    font-size: 1.6rem;
+}
+
+
+/* Task Area */
+.task-area.card {
+    background-color: var(--surface-container-low);
+    padding: 1.5rem 2rem;
+    border-radius: var(--border-radius-xlarge); /* Prominent rounding */
+    box-shadow: var(--shadow-1);
+    min-height: 300px; /* Ensure it has some height */
+}
+
+#current-view-title {
+    font-size: 1.9rem;
+    font-weight: 700; /* Bolder */
+    margin-bottom: 2rem;
+    color: var(--on-surface);
+}
+
+/* ------------------------- */
+/* --- TASK ITEMS --- */
+/* ------------------------- */
+.task-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.8rem 0.5rem; /* Less padding to rely on container padding */
+    border-bottom: 1px solid var(--outline);
+    transition: background-color var(--transition-fast);
+}
+.task-item:last-child {
+    border-bottom: none;
+}
+.task-item:hover {
+    background-color: var(--surface-container);
+    border-radius: var(--border-radius-medium); /* Round on hover */
+}
+
+.task-details {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    overflow: hidden; /* Prevent long text overflow */
+}
+.task-title {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--on-surface);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.task-meta {
+    display: flex;
+    gap: 0.8rem;
+    font-size: 0.85rem;
+    color: var(--on-surface-variant);
+}
+.task-meta > span {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+.task-meta .material-icons-outlined {
+    font-size: 1rem; /* Smaller icons for meta */
+}
+
+.task-actions {
+    display: flex;
+    gap: 0.25rem;
+    flex-shrink: 0;
+    opacity: 0; /* Hide actions by default */
+    transition: opacity var(--transition-fast);
+}
+.task-item:hover .task-actions {
+    opacity: 1; /* Show on hover */
+}
+
+/* Completed Task Styling */
+.task-item.completed .task-title {
+    text-decoration: line-through;
+    color: var(--on-surface-variant);
+    opacity: 0.8;
+}
+.task-item.completed {
+    opacity: 0.7;
+}
+
+/* Custom Checkbox */
+.checkbox-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 0.5rem; /* Click area */
+    user-select: none;
+    margin-left: -0.5rem; /* Align visually */
+}
+.checkbox-container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+.checkmark {
+    height: 20px;
+    width: 20px;
+    background-color: transparent;
+    border: 2px solid var(--outline);
+    border-radius: var(--border-radius-small);
+    transition: background-color var(--transition-fast), border-color var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.checkbox-container:hover input ~ .checkmark {
+    border-color: var(--primary);
+}
+.checkbox-container input:checked ~ .checkmark {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+.checkmark:after {
+    content: "";
+    display: none;
+    width: 5px;
+    height: 10px;
+    border: solid var(--on-primary);
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+.checkbox-container input:checked ~ .checkmark:after {
+    display: block;
+}
+.task-item.completed .checkmark { /* Styling when completed externally */
+     background-color: var(--primary);
+     border-color: var(--primary);
+}
+.task-item.completed .checkmark:after {
+     display: block;
+}
+
+
+/* ------------------------- */
+/* --- EMPTY STATE --- */
+/* ------------------------- */
+.empty-state {
+    text-align: center;
+    padding: 4rem 1rem; /* Lots of padding */
+    color: var(--on-surface-variant);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    border-bottom: none; /* Override task item border */
+}
+.empty-state:hover { background: none; } /* Override task item hover */
+
+.empty-state-visual {
+    margin-bottom: 1rem;
+}
+.empty-state-visual .material-icons-outlined {
+    font-size: 5rem; /* Large icon */
+    color: var(--surface-container-highest); /* Very subtle color */
+}
+.empty-state p {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--on-surface);
+}
+.empty-state .empty-state-subtle {
+    font-size: 0.9rem;
+    color: var(--on-surface-variant);
+    font-weight: 400;
+}
+
+
+/* ------------------------- */
+/* --- BUTTONS --- */
+/* ------------------------- */
+.icon-button {
+    background: none;
+    border: none;
+    padding: 0.5rem; /* Hit area */
+    border-radius: 50%;
+    cursor: pointer;
+    color: var(--on-surface-variant);
+    transition: background-color var(--transition-fast), color var(--transition-fast);
+    display: inline-flex; /* Ensure icon centers */
+    align-items: center;
+    justify-content: center;
+    width: 40px; /* Standard size */
+    height: 40px;
+}
+.icon-button .material-icons-outlined {
+    font-size: 1.5rem;
+    display: block;
+}
+.icon-button:hover {
+    background-color: var(--surface-container-high);
+    color: var(--on-surface);
+}
+.icon-button:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+    background-color: var(--surface-container-high);
+}
+.icon-button.accent {
+    background-color: var(--primary);
+    color: var(--on-primary);
+}
+.icon-button.accent:hover {
+    filter: brightness(1.1);
+    background-color: var(--primary); /* Keep background */
+    color: var(--on-primary);
+}
+.icon-button.danger {
+    color: var(--error);
+}
+.icon-button.danger:hover {
+    background-color: var(--error-container, #fde7e7); /* Need error-container */
+    color: var(--on-error-container, var(--error));
+}
+.dark-theme .icon-button.danger:hover {
+     background-color: var(--error-container-dark, #4b1110); /* Need dark error-container */
+     color: var(--on-error-container-dark, var(--error-dark));
+}
+
+/* Add styles for .filled-button, .text-button etc. if needed */
+
+
+/* ------------------------- */
+/* --- MODALS --- */
+/* ------------------------- */
+.modal {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.4); /* Dim overlay */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 1rem;
+}
+.modal-content {
+    max-width: 500px;
+    width: 100%;
+    border-radius: var(--border-radius-xlarge);
+    overflow: hidden; /* Clip content to rounded corners */
+    box-shadow: var(--shadow-4);
+}
+/* Apply glass to modal content background */
+.modal.glass .modal-content {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--outline);
+    color: var(--on-surface); /* Ensure text contrast on glass */
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--outline);
+}
+.modal-header h2 {
+    font-size: 1.3rem;
+}
+.modal-body {
+    padding: 1.5rem;
+}
+
+
+/* ------------------------- */
+/* --- GLASSMORPHISM --- */
+/* ------------------------- */
+.glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur)); /* Safari */
+    /* Border/shadow might be handled by element using .glass (e.g., sidebar, modal) */
+}
+
+/* ------------------------- */
+/* --- ACCESSIBILITY --- */
+/* ------------------------- */
+*:focus-visible {
+    outline: 3px solid var(--primary);
+    outline-offset: 1px;
+    border-radius: var(--border-radius-small); /* Optional: style outline */
+}
+/* Specific focus for icon buttons if round */
+.icon-button:focus-visible {
+    outline-offset: 3px;
+}
+
+
+/* ------------------------- */
+/* --- RESPONSIVENESS --- */
+/* ------------------------- */
+@media (max-width: 768px) {
+    body {
+        grid-template-columns: 1fr; /* Single column */
+        grid-template-rows: auto auto 1fr; /* Header, Sidebar toggle?, Main */
+        grid-template-areas:
+            "header"
+            /* Add a toggle area maybe */
+            "main";
+    }
+
+    .sidebar {
+        /* Options: Hide completely behind a button, or make it an overlay */
+        position: fixed; /* Example: Make it an overlay */
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 280px;
+        transform: translateX(-100%);
+        transition: transform var(--transition-medium);
+        z-index: 20;
+        border-right: 1px solid var(--outline);
+        /* Ensure background is opaque or glass effect works well */
+        background: var(--glass-bg); /* Needs solid fallback if blur fails */
+        backdrop-filter: blur(var(--glass-blur));
+        -webkit-backdrop-filter: blur(var(--glass-blur));
+        box-shadow: var(--shadow-3);
+    }
+    body.sidebar-open .sidebar {
+        transform: translateX(0);
+    }
+    /* Need a button in header to toggle .sidebar-open on body via JS */
+
+    .main-content {
+        padding: 1.5rem 1rem; /* Less padding on mobile */
+    }
+
+    #current-view-title {
+        font-size: 1.6rem;
+    }
+
+    .task-area.card {
+         padding: 1rem 1.25rem;
+         border-radius: var(--border-radius-large); /* Slightly smaller radius */
+    }
+
+    /* Adjust quick add? */
 }
