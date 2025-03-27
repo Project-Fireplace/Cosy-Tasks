@@ -1,220 +1,114 @@
-/* --- Inside style.css, within the THEMES section --- */
+/* Import Material Icons */
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+/* Consider importing a nice font */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
 
-/* --- Glassmorphism Theme --- */
-body.glassmorphism-theme {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0));
-    backdrop-filter: blur(10px); /* The key property */
-   -webkit-backdrop-filter: blur(10px); /* For Safari */
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-    color: #333;
-}
+:root {
+    /* Default Theme (Light - Material You Inspired Palette Example) */
+    --background-primary: #f8f9fa; /* Light background */
+    --background-secondary: #ffffff; /* Card background */
+    --background-glass: rgba(255, 255, 255, 0.7); /* Glass effect */
+    --text-primary: #212529;
+    --text-secondary: #6c757d;
+    --accent-color: #6750a4; /* Example Material You purple */
+    --accent-color-contrast: #ffffff; /* Text on accent */
+    --border-color: #dee2e6;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --completed-text: #888;
 
-/* IMPORTANT: Glassmorphism needs a background *behind* it to blur.
-   We'll use a fallback for browsers that don't support backdrop-filter. */
-body.glassmorphism-theme::before {
-    content: '';
-    position: fixed; /* Fixed positioning is crucial */
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1; /* Behind the main content */
-    background: url('images/glass_background.jpg') center/cover no-repeat; /*Use an image as background*/
-
-     /* Fallback for older browsers */
-    @supports not (backdrop-filter: blur(10px)) {
-        background: rgba(255, 255, 255, 0.8); /* Semi-transparent white */
-    }
+    --font-family: 'Roboto', sans-serif;
+    --border-radius: 12px; /* Softer corners */
+    --glass-blur: 10px;
 }
 
-body.glassmorphism-theme .app-header {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.3));
-    backdrop-filter: blur(5px);
-     -webkit-backdrop-filter: blur(5px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.18);
-}
-body.glassmorphism-theme .sidebar{
-	background: linear-gradient(135deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.3));
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
-     border-right: 1px solid rgba(255, 255, 255, 0.18);
-}
-body.glassmorphism-theme .task-item {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.6));
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
-    border: 1px solid rgba(255, 255, 255, 0.18);
-}
-body.glassmorphism-theme .overlay-content{
-	background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.6));
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
-    border: 1px solid rgba(255, 255, 255, 0.18);
-}
-body.glassmorphism-theme input[type="text"],
-body.glassmorphism-theme textarea,
-body.glassmorphism-theme select,
-body.glassmorphism-theme input[type="date"],
-body.glassmorphism-theme input[type="time"],
-body.glassmorphism-theme input[type="datetime-local"] {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
-    backdrop-filter: blur(5px);
-	 -webkit-backdrop-filter: blur(5px);
-    border: 1px solid rgba(255, 255, 255, 0.18);
-}
-body.glassmorphism-theme .button, body.glassmorphism-theme button, body.glassmorphism-theme .fab{
-		background: linear-gradient(135deg, rgba(230, 126, 34, 0.9), rgba(211, 84, 0, 0.9));
-}
-body.glassmorphism-theme .button:hover, body.glassmorphism-theme button:hover, body.glassmorphism-theme .fab:hover{
-		background: linear-gradient(135deg, rgba(179, 67, 0, 1), rgba(211, 84, 0, 0.9));
-}
-/* --- Retro Theme --- */
-body.retro-theme {
-    background-color: #f0e68c; /* Khaki */
-    color: #800080; /* Purple */
-}
-body.retro-theme .app-header {
-    background-color: #008080; /* Teal */
-    color: #ffff00; /* Yellow */
-}
-body.retro-theme .sidebar{
-	background-color: #add8e6; /*light blue*/
-}
-body.retro-theme .task-item {
-    background-color: #fff;
-    color: #800080;
-}
-body.retro-theme .overlay-content{
-	background-color: #fff;
-}
-body.retro-theme input[type="text"],
-body.retro-theme textarea,
-body.retro-theme select,
-body.retro-theme input[type="date"],
-body.retro-theme input[type="time"],
-body.retro-theme input[type="datetime-local"] {
-    background-color: #fff;
-    border-color: #008080;
-}
-body.retro-theme .button, body.retro-theme button, body.retro-theme .fab{
-		background-color: #008080;
-        color: #ffff00;
-}
-body.retro-theme .button:hover, body.retro-theme button:hover, body.retro-theme .fab:hover{
-		background-color: #006666;
-}
-/* --- Minimalist Theme --- */
-body.minimalist-theme {
-    background-color: #f8f9fa; /* Very light gray */
-    color: #343a40; /* Dark gray */
-}
-body.minimalist-theme .app-header {
-    background-color: #fff; /* White */
-    color: #343a40;
-    box-shadow: none; /* Remove shadow */
-    border-bottom: 1px solid #dee2e6; /* Light border */
-}
-body.minimalist-theme .sidebar{
-	background-color: #e9ecef;
-}
-body.minimalist-theme .task-item {
-    background-color: #fff;
-    border: 1px solid #dee2e6;
-    box-shadow: none;
-}
-body.minimalist-theme .overlay-content {
-    background-color: #fff;
-}
-body.minimalist-theme .button, body.minimalist-theme button {
-    background-color: #007bff; /* Bootstrap primary blue */
-    color: #fff;
-    border: none;
-}
-body.minimalist-theme input[type="text"],
-body.minimalist-theme textarea,
-body.minimalist-theme select,
-body.minimalist-theme input[type="date"],
-body.minimalist-theme input[type="time"],
-body.minimalist-theme input[type="datetime-local"] {
-    border-color: #ced4da;
-	background-color: #fff;
-}
-body.minimalist-theme .fab{
-	background-color: #007bff;
-}
-body.minimalist-theme .button:hover, body.minimalist-theme button:hover, body.minimalist-theme .fab:hover{
-		background-color: #0056b3;
-}
-/* --- Cyberpunk Theme --- */
-body.cyberpunk-theme {
-    background-color: #0d0221; /* Dark blue */
-    color: #e67e22;
-}
-body.cyberpunk-theme .app-header {
-    background-color: #711c91; /* Dark purple */
-    color: #fff;
-}
-body.cyberpunk-theme .sidebar {
-    background-color: #1b262c; /* Slightly lighter dark blue */
-}
-body.cyberpunk-theme .task-item {
-    background-color: #3282b8; /* Lighter blue */
-    color: #000;
-    border: 1px solid #b5e2fa; /* Light blue border */
+/* Add .dark-theme class to body or html for dark mode */
+.dark-theme {
+    --background-primary: #121212;
+    --background-secondary: #1e1e1e;
+    --background-glass: rgba(30, 30, 30, 0.7);
+    --text-primary: #e0e0e0;
+    --text-secondary: #a0a0a0;
+    /* --accent-color needs a dark mode version */
+    --accent-color: #d0bcff; /* Example Material You purple for dark */
+    --accent-color-contrast: #381e72;
+    --border-color: #444;
+    --shadow-color: rgba(0, 0, 0, 0.3);
+    --completed-text: #666;
 }
 
-body.cyberpunk-theme .overlay-content{
-	background-color: #3282b8;
-}
-body.cyberpunk-theme input[type="text"],
-body.cyberpunk-theme textarea,
-body.cyberpunk-theme select,
-body.cyberpunk-theme input[type="date"],
-body.cyberpunk-theme input[type="time"],
-body.cyberpunk-theme input[type="datetime-local"] {
-    border: 1px solid #b5e2fa;
-	background-color: #fff;
-    color: #000;
-}
-body.cyberpunk-theme .button, body.cyberpunk-theme button, body.cyberpunk-theme .fab{
-		background-color: #711c91;
-}
-body.cyberpunk-theme .button:hover, body.cyberpunk-theme button:hover, body.cyberpunk-theme .fab:hover{
-		background-color: #5a189a;
-}
-/* --- Nature Theme --- */
-body.nature-theme {
-    background-color: #e9d8a6; /* Pale yellow/beige */
-    color: #382f2d; /* Dark brown */
+/* Basic Reset & Body Styling */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: var(--font-family);
+    background-color: var(--background-primary);
+    color: var(--text-primary);
+    line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-body.nature-theme .app-header {
-    background-color: #637040; /* Muted green */
-    color: #fff;
+/* Glassmorphism Example (Apply to elements like modals, sidebars) */
+.glass {
+    background: var(--background-glass);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur)); /* Safari */
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 15px var(--shadow-color);
 }
-body.nature-theme .sidebar {
-	background-color: #ddca8b;
+
+/* Basic Layout Example (Needs Refinement) */
+body {
+    display: grid;
+    grid-template-areas:
+        "header header"
+        "sidebar main"
+        "footer footer";
+    grid-template-columns: 250px 1fr; /* Adjust sidebar width */
+    grid-template-rows: auto 1fr auto;
 }
-body.nature-theme .task-item {
-    background-color: #fff; /* White for contrast */
-    border: 1px solid #c1b58f; /* Light brown border */
+header { grid-area: header; /* Add styling */ }
+.sidebar { grid-area: sidebar; padding: 1rem; /* Apply .glass? */ }
+main { grid-area: main; padding: 1rem; overflow-y: auto; } /* Important for scrolling */
+footer { grid-area: footer; text-align: center; padding: 0.5rem; }
+
+
+/* Task Item Example */
+#task-list li {
+    background-color: var(--background-secondary);
+    margin-bottom: 0.8rem;
+    padding: 0.8rem 1rem;
+    border-radius: var(--border-radius);
+    box-shadow: 0 2px 5px var(--shadow-color);
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    transition: box-shadow 0.2s ease;
 }
-body.nature-theme .overlay-content {
-     background-color: #fff;
+#task-list li:hover {
+    box-shadow: 0 4px 10px var(--shadow-color);
 }
-body.nature-theme input[type="text"],
-body.nature-theme textarea,
-body.nature-theme select,
-body.nature-theme input[type="date"],
-body.nature-theme input[type="time"],
-body.nature-theme input[type="datetime-local"]{
-    border-color: #637040;
-	background-color: #fff;
+#task-list li.completed {
+    opacity: 0.7;
 }
-body.nature-theme .button, body.nature-theme button, body.nature-theme .fab{
-		background-color: #637040;
+#task-list li.completed .task-title {
+    text-decoration: line-through;
+    color: var(--completed-text);
 }
-body.nature-theme .button:hover, body.nature-theme button:hover, body.nature-theme .fab:hover{
-	background-color: #495430;
+
+/* Add styles for inputs, buttons, modals, icons, responsive design etc */
+
+/* Accessibility */
+*:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}
+
+/* Material Icons base style */
+.material-icons {
+    vertical-align: middle; /* Align icons better with text */
+    font-size: inherit; /* Match surrounding text size */
 }
