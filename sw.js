@@ -1,176 +1,135 @@
-const CACHE_NAME = 'cosy-tasks-v12';
+// sw.js - Basic Service Worker for Offline Caching (Cache First Strategy)
+
+const CACHE_NAME = 'cosy-tasks-cache-v1'; // Increment version to force update
 const urlsToCache = [
     '/',
     '/index.html',
     '/css/style.css',
     '/js/app.js',
+    '/js/db.js',
+    '/js/ui.js',
+    '/js/notifications.js', // If you have it
     '/manifest.json',
-    '/images/icon-96x96.png', // Add all your icon sizes
-    '/images/icon-192x192.png',
-    '/images/icon-512x512.png',
-	// Add any other assets (fonts, images, etc.) you want to cache
-	//Example: '/fonts/Roboto.woff2',
-    'https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Open+Sans:wght@400;600&display=swap', //Caching google fonts
-    'https://fonts.gstatic.com/s/roboto/v29/KFOmCnqEu92Fr1Me5g.woff2',
-    'https://fonts.gstatic.com/s/opensans/v28/memvYaGs126MiZpBA-UvWbX2vVnXBbObj2OVTSumu0SC55K5gw.woff2',
-    'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200'
+    // Add paths to Material Icons font files if hosting locally
+    'https://fonts.googleapis.com/icon?family=Material+Icons', // Cache font CSS
+    'https://fonts.gstatic.com/s/materialicons/vXXX/flUhRq6tzZclQEJ-Vdg-IuiaDsNc.woff2', // Cache actual font file (find exact URL via DevTools)
+    // Add paths to icons in /icons/
+    '/icons/icon-72x72.png',
+    '/icons/icon-96x96.png',
+    '/icons/icon-144x144.png',
+    '/icons/icon-192x192.png',
+    '/icons/icon-512x512.png',
+    '/icons/maskable_icon.png'
+    // Add other essential assets (images, fonts)
 ];
 
-// --- Install Event ---
+// Install: Cache essential assets
 self.addEventListener('install', event => {
+    console.log('Service Worker: Installing...');
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then(cache => {
-                console.log('Opened cache');
+                console.log('Service Worker: Caching app shell');
                 return cache.addAll(urlsToCache);
             })
+            .then(() => self.skipWaiting()) // Activate worker immediately
+            .catch(error => console.error('Service Worker: Caching failed', error))
     );
 });
 
-// --- Activate Event ---
+// Activate: Clean up old caches
 self.addEventListener('activate', event => {
+    console.log('Service Worker: Activating...');
     event.waitUntil(
         caches.keys().then(cacheNames => {
             return Promise.all(
-                cacheNames.filter(cacheName => {
-                    return cacheName.startsWith('cosy-tasks-') && cacheName !== CACHE_NAME;
-                }).map(cacheName => {
-                    return caches.delete(cacheName);
+                cacheNames.map(cacheName => {
+                    if (cacheName !== CACHE_NAME) {
+                        console.log('Service Worker: Deleting old cache', cacheName);
+                        return caches.delete(cacheName);
+                    }
                 })
             );
-        })
+        }).then(() => self.clients.claim()) // Take control immediately
     );
 });
 
-// --- Fetch Event (Cache-First Strategy) ---
+// Fetch: Serve from cache first, fallback to network
 self.addEventListener('fetch', event => {
+    // Ignore non-GET requests
+    if (event.request.method !== 'GET') return;
+
+    // For HTML navigation requests, use Network first then Cache (Stale-While-Revalidate might be better)
+    if (event.request.mode === 'navigate') {
+        event.respondWith(
+            fetch(event.request)
+                .then(response => {
+                    // If network successful, cache the response (optional, good for updates)
+                    // Be careful caching dynamic HTML responses if they vary
+                    // if (response.ok) {
+                    //     let responseToCache = response.clone();
+                    //     caches.open(CACHE_NAME).then(cache => cache.put(event.request, responseToCache));
+                    // }
+                    return response;
+                })
+                .catch(() => {
+                    // Network failed, try cache
+                    return caches.match(event.request)
+                           .then(cachedResponse => cachedResponse || caches.match('/index.html')); // Fallback to index
+                })
+        );
+        return;
+    }
+
+    // For other static assets (CSS, JS, Images), use Cache First
     event.respondWith(
         caches.match(event.request)
-            .then(response => {
-                // Cache hit - return response
-                if (response) {
-                    return response;
+            .then(cachedResponse => {
+                // Return cached response if found
+                if (cachedResponse) {
+                    // console.log('SW: Serving from cache:', event.request.url);
+                    return cachedResponse;
                 }
 
-                // IMPORTANT: Clone the request. A request is a stream and
-                // can only be consumed once. Since we are consuming this
-                // once by cache and once by the browser for fetch, we need
-                // to clone the response.
-                const fetchRequest = event.request.clone();
-
-                return fetch(fetchRequest).then(
-                    response => {
-                        // Check if we received a valid response
-                        if (!response || response.status !== 200 || response.type !== 'basic') {
-                            return response;
-                        }
-
-                        // IMPORTANT: Clone the response. A response is a stream
-                        // and because we want the browser to consume the response
-                        // as well as the cache consuming the response, we need
-                        // to clone it so we have two streams.
-                        const responseToCache = response.clone();
-
-                        caches.open(CACHE_NAME)
-                            .then(cache => {
-                                cache.put(event.request, responseToCache);
-                            });
-
-                        return response;
+                // Otherwise, fetch from network
+                // console.log('SW: Fetching from network:', event.request.url);
+                return fetch(event.request).then(networkResponse => {
+                    // Optional: Cache the new response for future use
+                    if (networkResponse && networkResponse.status === 200) {
+                         // Only cache successful responses & assets we want to cache
+                         if (urlsToCache.includes(new URL(event.request.url).pathname) || event.request.url.startsWith('https://fonts.gstatic.com')) {
+                            let responseToCache = networkResponse.clone();
+                            caches.open(CACHE_NAME)
+                                .then(cache => cache.put(event.request, responseToCache));
+                         }
                     }
-                );
+                    return networkResponse;
+                }).catch(error => {
+                    console.error('SW: Fetch failed; returning offline fallback if available.', error);
+                    // Optionally return a fallback image or asset here
+                    // e.g., if (event.request.url.endsWith('.png')) return caches.match('/images/offline-fallback.png');
+                });
             })
     );
 });
 
-// --- Push Notification Event (Basic Example) ---
-self.addEventListener('push', event => {
-    const title = 'Cosy Tasks'; // Or get title from event.data
-    const options = {
-        body: 'You have a new task!', // Or get body from event.data
-        icon: 'images/icon-96x96.png',
-        // ... other options
-    };
-
-    event.waitUntil(self.registration.showNotification(title, options));
-});
-
-self.addEventListener('notificationclick', (event) => {
-	const notification = event.notification;
-    const action = event.action;
-    const data = notification.data;
-
-	event.waitUntil(
-		self.clients.matchAll().then(clis => {
-			const client = clis.find(c => {
-				return c.visibilityState === 'visible';
-			});
-            // Send a message to the client
-			const message = {
-				type: 'notificationclick', //consistent naming
-				notification: {
-                    title: notification.title,
-                    body: notification.body,
-                    data: data
-                }, //serialize
-				action: action
-			};
-
-			if(client){
-				client.postMessage(message);
-			} else{
-				// No visible client, so open a new window.
-                // But, opening the window here doesn't guarantee it'll be ready *before* the main script
-                // tries to show the task details. It's racy.
-                if (self.clients.openWindow) { //check if openWindow is supported
-                   self.clients.openWindow('/'); // Open root. Let main script handle showing details
+// Add listeners for 'push' (if using Push API - complex on static) or 'notificationclick'
+self.addEventListener('notificationclick', event => {
+    console.log('Notification clicked:', event.notification.tag);
+    event.notification.close();
+    // Focus or open the app window
+    event.waitUntil(
+        clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clientList => {
+            if (clientList.length > 0) {
+                let client = clientList[0];
+                for (let i = 0; i < clientList.length; i++) {
+                    if (clientList[i].focused) {
+                        client = clientList[i];
+                    }
                 }
-			}
-
-
-		})
-	);
+                return client.focus();
+            }
+            return clients.openWindow('/'); // Open the app if not already open
+        })
+    );
 });
-
-self.addEventListener('notificationclose', (event) => {
-	const notification = event.notification;
-    const data = notification.data;
-
-	event.waitUntil(
-		self.clients.matchAll().then(clis => {
-			const client = clis.find(c => {
-				return c.visibilityState === 'visible';
-			});
-			// Send a message to the client
-			const message = {
-				type: 'notificationclose', //consistent naming
-				notification: {
-                    title: notification.title,
-                    body: notification.body,
-                    data: data
-                }, //serialize
-			};
-
-			if(client)
-				client.postMessage(message);
-
-			//Don't open window
-		})
-	);
-});
-
-// --- Background Sync (Example) ---
-self.addEventListener('sync', event => {
-    if (event.tag === 'sync-new-tasks') {
-       // event.waitUntil(syncTasks()); // Implement syncTasks function
-    }
-});
-
-// Example syncTasks function (would need to interact with a server)
-/*
-async function syncTasks() {
-    // Get tasks from IndexedDB (or wherever you store them for syncing)
-    // Send tasks to the server
-    // Update IndexedDB on success
-}
-*/
